@@ -20,5 +20,7 @@ COPY . .
 WORKDIR /app/backend
 RUN composer install --no-interaction --optimize-autoloader
 
+RUN php artisan config:clear && php artisan route:clear
+
 EXPOSE 8080
 CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
