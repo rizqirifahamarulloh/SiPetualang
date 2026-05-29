@@ -1,12 +1,7 @@
 // frontend/src/services/api.js
 import axios from 'axios'
 
-// Toggle between Production API and Local API
-// Set to true to use the online production API, or false for local development
-export const USE_PRODUCTION_API = false;
-
-export const BASE_URL = USE_PRODUCTION_API ? 'https://api.fakerryugan.my.id' : 'http://localhost:8000';
-export const API_URL = `${BASE_URL}/api`;
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
   baseURL: API_URL,
