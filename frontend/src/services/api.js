@@ -1,9 +1,12 @@
 // frontend/src/services/api.js
 import axios from 'axios'
 
-// API Base URL - uses VITE_API_BASE_URL environment variable
-// Set in .env for local dev, or in Vercel/deployment environment variables for production
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+// API Base URL configuration
+// Priority: VITE_API_BASE_URL env var > auto-detect production > localhost fallback
+const PRODUCTION_API = 'https://sipetualang-rental.up.railway.app';
+const LOCAL_API = 'http://localhost:8000';
+
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? PRODUCTION_API : LOCAL_API);
 export const API_URL = `${BASE_URL}/api`;
 
 const api = axios.create({
