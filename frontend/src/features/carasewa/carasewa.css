@@ -1,0 +1,354 @@
+/* ============================================================
+   Cara Sewa — How-to-rent page styles
+   ============================================================ */
+
+@layer components {
+
+  /* ─── Hero Banner ─── */
+  .cs-hero-wrapper {
+    background: #ffffff;
+    padding: 16px 16px 0 16px;
+  }
+
+  .cs-hero {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  .cs-hero img.cs-hero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 100%;
+  }
+
+  /* Dark overlay for text readability */
+  .cs-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.3) 50%,
+      rgba(0, 0, 0, 0.1) 100%
+    ); */
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Hero text content */
+  .cs-hero-content {
+    position: absolute;
+    bottom: 150px;
+    left: 150px;
+    z-index: 10;
+    max-width: 520px;
+  }
+
+  .cs-hero-title {
+    font-size: 40px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .cs-hero-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    max-width: 420px;
+  }
+
+  .cs-hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #2AB573;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .cs-hero-btn:hover {
+    background: #1e9a5f;
+    box-shadow: 0 6px 20px rgba(42, 181, 115, 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Breadcrumb */
+  .cs-hero .cs-breadcrumb {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 12;
+    background: white;
+    padding: 12px 32px;
+    border-radius: 16px 16px 16px 16px;
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  .cs-hero .cs-breadcrumb a {
+    color: #999;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .cs-hero .cs-breadcrumb a:hover {
+    color: #2AB573;
+  }
+
+  .cs-hero .cs-breadcrumb .cs-breadcrumb-active {
+    color: #333;
+    font-weight: 500;
+  }
+
+  .cs-hero .cs-breadcrumb .cs-breadcrumb-sep {
+    margin: 0 6px;
+    color: #bbb;
+  }
+
+  /* ─── Blog Section — Two-column Layout ─── */
+  .cs-blog-section {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 64px 24px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: flex-start;
+  }
+
+  /* Left Column */
+  .cs-blog-left {
+    position: sticky;
+    top: 120px;
+  }
+
+  .cs-blog-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2AB573;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .cs-blog-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 20px;
+  }
+
+  .cs-blog-desc {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .cs-blog-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    background: transparent;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 12px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .cs-blog-cta:hover {
+    border-color: #2AB573;
+    color: #2AB573;
+    background: #f0fdf4;
+  }
+
+  /* ─── Right Column — Accordion ─── */
+  .cs-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cs-accordion-item {
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .cs-accordion-item:first-child {
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .cs-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    transition: color 0.2s;
+  }
+
+  .cs-accordion-header:hover {
+    color: #2AB573;
+  }
+
+  .cs-accordion-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: inherit;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .cs-accordion-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1f2937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+
+  .cs-accordion-item.active .cs-accordion-icon {
+    background: #2AB573;
+  }
+
+  .cs-accordion-icon svg {
+    color: white;
+    width: 14px;
+    height: 14px;
+  }
+
+  .cs-accordion-body {
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.3s ease;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .cs-accordion-item.active .cs-accordion-body {
+    max-height: 500px;
+    opacity: 1;
+  }
+
+  .cs-accordion-content {
+    padding: 0 0 24px 0;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.7;
+  }
+
+  .cs-accordion-content p {
+    margin-bottom: 12px;
+  }
+
+  .cs-accordion-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .cs-accordion-content ul li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.6;
+  }
+
+  .cs-accordion-content ul li::before {
+    content: "•";
+    position: absolute;
+    left: 4px;
+    color: #2AB573;
+    font-weight: bold;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .cs-hero {
+      height: 300px;
+      border-radius: 16px;
+    }
+
+    .cs-hero-content {
+      bottom: 60px;
+      left: 24px;
+      right: 24px;
+      max-width: none;
+    }
+
+    .cs-hero-title {
+      font-size: 28px;
+    }
+
+    .cs-hero-subtitle {
+      font-size: 13px;
+      max-width: none;
+    }
+
+    .cs-hero .cs-breadcrumb {
+      padding: 8px 20px;
+      font-size: 11px;
+      border-radius: 12px 12px 12px 12px;
+    }
+
+    .cs-blog-section {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 40px 16px 60px;
+    }
+
+    .cs-blog-left {
+      position: static;
+    }
+
+    .cs-blog-title {
+      font-size: 26px;
+    }
+
+    .cs-accordion-header h3 {
+      font-size: 14px;
+    }
+
+    .cs-hero img.cs-hero-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 100%;
+  }
+  }
+}

@@ -1,0 +1,104 @@
+/* ============================================================
+   Landing Page — Feature-scoped CSS escape hatch
+   Only imported by Home.jsx. Isolated from dashboard/other features.
+   Contains CSS that cannot be expressed as Tailwind utilities.
+   ============================================================ */
+
+@layer components {
+  /* Scrollbar styling */
+  .landing-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  .landing-scrollbar::-webkit-scrollbar-track {
+    background: #f5f5f5;
+  }
+  .landing-scrollbar::-webkit-scrollbar-thumb {
+    background: #2ab573;
+    border-radius: 9999px;
+  }
+  .landing-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #1e9a5f;
+  }
+
+  /* HowItWorks card mask shape */
+  .card-mask-shape {
+    -webkit-mask-image: url("@/assets/beranda/Service-Card-1.png");
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: url("@/assets/beranda/Service-Card-1.png");
+    mask-size: 100% 100%;
+    mask-position: center;
+    mask-repeat: no-repeat;
+  }
+
+  /* LoadingScreen text fill effect */
+  .loading-text-fill {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%232ab573' d='M0,100 C40,70 60,130 100,100 C140,70 160,130 200,100 L200,250 L0,250 Z'/%3E%3C/svg%3E"),
+      linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1));
+    background-size: 150px 200%, 100% 100%;
+    background-repeat: repeat-x, no-repeat;
+    background-position-x: 0, 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Navbar hamburger active transforms */
+  .hamburger-active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .hamburger-active span:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger-active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* Brand marquee fade mask */
+  .marquee-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 10%,
+      black 90%,
+      transparent 100%
+    );
+  }
+
+  /* Hero scroll indicator animation line */
+  .scroll-indicator-line::after {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: #2ab573;
+    animation: scroll-down 2s infinite;
+  }
+
+  /* Navbar link hover underline */
+  .nav-link-underline::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: rgb(42, 181, 115);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .nav-link-underline:hover::after {
+    width: 100%;
+  }
+}
