@@ -1,11 +1,9 @@
 // frontend/src/services/api.js
 import axios from 'axios'
 
-// Toggle between Production API and Local API
-// Set to true to use the online production API, or false for local development
-export const USE_PRODUCTION_API = false;
-
-export const BASE_URL = USE_PRODUCTION_API ? 'https://api.fakerryugan.my.id' : 'http://localhost:8000';
+// API Base URL - uses VITE_API_BASE_URL environment variable
+// Set in .env for local dev, or in Vercel/deployment environment variables for production
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 export const API_URL = `${BASE_URL}/api`;
 
 const api = axios.create({
