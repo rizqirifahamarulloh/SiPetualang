@@ -23,66 +23,6 @@ use App\Http\Middleware\RoleMiddleware;
 | PUBLIC ROUTES (TANPA LOGIN)
 |--------------------------------------------------------------------------
 */
-// TEMPORARY DEBUG ROUTE - REMOVE AFTER FIXING
-Route::get('/debug-db', function () {
-    try {
-        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
-        $tableNames = array_map(fn($t) => array_values((array) $t)[0], $tables);
-        $result = ['tables' => $tableNames];
-
-        if (in_array('ulasan', $tableNames)) {
-            $cols = \Illuminate\Support\Facades\DB::select('SHOW COLUMNS FROM ulasan');
-            $result['ulasan_columns'] = array_map(fn($c) => $c->Field, $cols);
-        } else {
-            $result['ulasan_status'] = 'TABLE NOT FOUND';
-        }
-
-        if (in_array('migrations', $tableNames)) {
-            $result['recent_migrations'] = \Illuminate\Support\Facades\DB::table('migrations')->orderBy('id', 'desc')->limit(15)->pluck('migration');
-        }
-
-        return response()->json($result);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-});
-
-// TEMPORARY FIX ROUTE - Drops and recreates ulasan table with correct structure
-Route::get('/fix-db', function () {
-    try {
-        $results = [];
-
-        // Drop and recreate ulasan table with correct structure
-        \Illuminate\Support\Facades\DB::statement('DROP TABLE IF EXISTS ulasan');
-        $results[] = 'Dropped ulasan table';
-
-        \Illuminate\Support\Facades\DB::statement('
-            CREATE TABLE ulasan (
-                id_ulasan BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                id_transaksi BIGINT UNSIGNED NOT NULL,
-                id_pengguna BIGINT UNSIGNED NOT NULL,
-                id_barang BIGINT UNSIGNED NOT NULL,
-                rating TINYINT NOT NULL DEFAULT 0 COMMENT "1-5",
-                komentar TEXT NULL,
-                foto_ulasan TEXT NULL,
-                created_at TIMESTAMP NULL,
-                updated_at TIMESTAMP NULL,
-                UNIQUE KEY ulasan_id_transaksi_unique (id_transaksi),
-                INDEX ulasan_id_barang_index (id_barang),
-                INDEX ulasan_id_pengguna_index (id_pengguna)
-            )
-        ');
-        $results[] = 'Created ulasan table with rating column';
-
-        // Verify
-        $cols = \Illuminate\Support\Facades\DB::select('SHOW COLUMNS FROM ulasan');
-        $results['ulasan_columns'] = array_map(fn($c) => $c->Field, $cols);
-
-        return response()->json(['success' => true, 'results' => $results]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
-});
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
