@@ -23,6 +23,83 @@ use App\Http\Middleware\RoleMiddleware;
 | PUBLIC ROUTES (TANPA LOGIN)
 |--------------------------------------------------------------------------
 */
+// TEMPORARY DEBUG ROUTE - REMOVE AFTER FIXING
+Route::get('/debug-db', function () {
+    try {
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+        $tableNames = array_map(fn($t) => array_values((array) $t)[0], $tables);
+        $result = ['tables' => $tableNames];
+
+        if (in_array('ulasan', $tableNames)) {
+            $cols = \Illuminate\Support\Facades\DB::select('SHOW COLUMNS FROM ulasan');
+            $result['ulasan_columns'] = array_map(fn($c) => $c->Field, $cols);
+        } else {
+            $result['ulasan_status'] = 'TABLE NOT FOUND';
+        }
+
+        if (in_array('migrations', $tableNames)) {
+            $result['recent_migrations'] = \Illuminate\Support\Facades\DB::table('migrations')->orderBy('id', 'desc')->limit(15)->pluck('migration');
+        }
+
+        return response()->json($result);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+// TEMPORARY FIX ROUTE - Adds missing 'rating' column to ulasan table
+Route::get('/fix-db', function () {
+    try {
+        $results = [];
+
+        // Fix ulasan table - add rating column if missing
+        if (\Illuminate\Support\Facades\Schema::hasTable('ulasan') && !\Illuminate\Support\Facades\Schema::hasColumn('ulasan', 'rating')) {
+            \Illuminate\Support\Facades\Schema::table('ulasan', function ($table) {
+                $table->tinyInteger('rating')->default(0)->comment('1-5')->after('id_barang');
+            });
+            $results[] = 'Added rating column to ulasan';
+        } elseif (!\Illuminate\Support\Facades\Schema::hasTable('ulasan')) {
+            // Create ulasan table from scratch
+            \Illuminate\Support\Facades\Schema::create('ulasan', function ($table) {
+                $table->id('id_ulasan');
+                $table->unsignedBigInteger('id_transaksi');
+                $table->unsignedBigInteger('id_pengguna');
+                $table->unsignedBigInteger('id_barang');
+                $table->tinyInteger('rating')->comment('1-5');
+                $table->text('komentar')->nullable();
+                $table->text('foto_ulasan')->nullable();
+                $table->timestamps();
+                $table->unique('id_transaksi');
+                $table->index('id_barang');
+                $table->index('id_pengguna');
+            });
+            $results[] = 'Created ulasan table';
+        } else {
+            $results[] = 'ulasan table already has rating column';
+        }
+
+        // Add komentar column if missing
+        if (\Illuminate\Support\Facades\Schema::hasTable('ulasan') && !\Illuminate\Support\Facades\Schema::hasColumn('ulasan', 'komentar')) {
+            \Illuminate\Support\Facades\Schema::table('ulasan', function ($table) {
+                $table->text('komentar')->nullable()->after('rating');
+            });
+            $results[] = 'Added komentar column to ulasan';
+        }
+
+        // Add foto_ulasan column if missing
+        if (\Illuminate\Support\Facades\Schema::hasTable('ulasan') && !\Illuminate\Support\Facades\Schema::hasColumn('ulasan', 'foto_ulasan')) {
+            \Illuminate\Support\Facades\Schema::table('ulasan', function ($table) {
+                $table->text('foto_ulasan')->nullable()->after('komentar');
+            });
+            $results[] = 'Added foto_ulasan column to ulasan';
+        }
+
+        return response()->json(['success' => true, 'results' => $results]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+    }
+});
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
