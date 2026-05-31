@@ -18,23 +18,15 @@ class RentalController extends Controller
     // Get all available barang from DATABASE (untuk public)
     public function getAvailableBarang()
     {
-        try {
-            $barang = Barang::with('pemilik')
-                ->withCount('detailTransaksi as total_disewa')
-                ->where('status_barang', 'tersedia')
-                ->where('status_approval', 'disetujui')
-                ->where('jumlah_stok', '>', 0)
-                ->orderBy('id_barang', 'desc')
-                ->get();
+        $barang = Barang::with('pemilik')
+            ->withCount('detailTransaksi as total_disewa')
+            ->where('status_barang', 'tersedia')
+            ->where('status_approval', 'disetujui')
+            ->where('jumlah_stok', '>', 0)
+            ->orderBy('id_barang', 'desc')
+            ->get();
 
-            return response()->json($barang);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ], 500);
-        }
+        return response()->json($barang);
     }
 
     // Get detail barang by ID (untuk public)
