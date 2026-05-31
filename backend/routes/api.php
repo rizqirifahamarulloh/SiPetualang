@@ -47,56 +47,40 @@ Route::get('/debug-db', function () {
     }
 });
 
-// TEMPORARY FIX ROUTE - Adds missing 'rating' column to ulasan table
+// TEMPORARY FIX ROUTE - Drops and recreates ulasan table with correct structure
 Route::get('/fix-db', function () {
     try {
         $results = [];
 
-        // Fix ulasan table - add rating column if missing
-        if (\Illuminate\Support\Facades\Schema::hasTable('ulasan') && !\Illuminate\Support\Facades\Schema::hasColumn('ulasan', 'rating')) {
-            \Illuminate\Support\Facades\Schema::table('ulasan', function ($table) {
-                $table->tinyInteger('rating')->default(0)->comment('1-5')->after('id_barang');
-            });
-            $results[] = 'Added rating column to ulasan';
-        } elseif (!\Illuminate\Support\Facades\Schema::hasTable('ulasan')) {
-            // Create ulasan table from scratch
-            \Illuminate\Support\Facades\Schema::create('ulasan', function ($table) {
-                $table->id('id_ulasan');
-                $table->unsignedBigInteger('id_transaksi');
-                $table->unsignedBigInteger('id_pengguna');
-                $table->unsignedBigInteger('id_barang');
-                $table->tinyInteger('rating')->comment('1-5');
-                $table->text('komentar')->nullable();
-                $table->text('foto_ulasan')->nullable();
-                $table->timestamps();
-                $table->unique('id_transaksi');
-                $table->index('id_barang');
-                $table->index('id_pengguna');
-            });
-            $results[] = 'Created ulasan table';
-        } else {
-            $results[] = 'ulasan table already has rating column';
-        }
+        // Drop and recreate ulasan table with correct structure
+        \Illuminate\Support\Facades\DB::statement('DROP TABLE IF EXISTS ulasan');
+        $results[] = 'Dropped ulasan table';
 
-        // Add komentar column if missing
-        if (\Illuminate\Support\Facades\Schema::hasTable('ulasan') && !\Illuminate\Support\Facades\Schema::hasColumn('ulasan', 'komentar')) {
-            \Illuminate\Support\Facades\Schema::table('ulasan', function ($table) {
-                $table->text('komentar')->nullable()->after('rating');
-            });
-            $results[] = 'Added komentar column to ulasan';
-        }
+        \Illuminate\Support\Facades\DB::statement('
+            CREATE TABLE ulasan (
+                id_ulasan BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                id_transaksi BIGINT UNSIGNED NOT NULL,
+                id_pengguna BIGINT UNSIGNED NOT NULL,
+                id_barang BIGINT UNSIGNED NOT NULL,
+                rating TINYINT NOT NULL DEFAULT 0 COMMENT "1-5",
+                komentar TEXT NULL,
+                foto_ulasan TEXT NULL,
+                created_at TIMESTAMP NULL,
+                updated_at TIMESTAMP NULL,
+                UNIQUE KEY ulasan_id_transaksi_unique (id_transaksi),
+                INDEX ulasan_id_barang_index (id_barang),
+                INDEX ulasan_id_pengguna_index (id_pengguna)
+            )
+        ');
+        $results[] = 'Created ulasan table with rating column';
 
-        // Add foto_ulasan column if missing
-        if (\Illuminate\Support\Facades\Schema::hasTable('ulasan') && !\Illuminate\Support\Facades\Schema::hasColumn('ulasan', 'foto_ulasan')) {
-            \Illuminate\Support\Facades\Schema::table('ulasan', function ($table) {
-                $table->text('foto_ulasan')->nullable()->after('komentar');
-            });
-            $results[] = 'Added foto_ulasan column to ulasan';
-        }
+        // Verify
+        $cols = \Illuminate\Support\Facades\DB::select('SHOW COLUMNS FROM ulasan');
+        $results['ulasan_columns'] = array_map(fn($c) => $c->Field, $cols);
 
         return response()->json(['success' => true, 'results' => $results]);
     } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+        return response()->json(['error' => $e->getMessage()], 500);
     }
 });
 
