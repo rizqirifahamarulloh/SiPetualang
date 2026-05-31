@@ -3,9 +3,9 @@ import axios from 'axios'
 
 // Toggle between Production API and Local API
 // Set to true to use the online production API, or false for local development
-export const USE_PRODUCTION_API = false;
+export const USE_PRODUCTION_API = true;
 
-export const BASE_URL = USE_PRODUCTION_API ? 'https://api.fakerryugan.my.id' : 'http://localhost:8000';
+export const BASE_URL = USE_PRODUCTION_API ? 'https://sipetualang-rental.up.railway.app' : 'http://localhost:8000';
 export const API_URL = `${BASE_URL}/api`;
 
 const api = axios.create({
