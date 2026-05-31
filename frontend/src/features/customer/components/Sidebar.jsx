@@ -23,10 +23,10 @@ import {
 export default function Sidebar({ user, isKtpVerified, getPhotoUrl, getInitials }) {
   const location = useLocation();
   const [counts, setCounts] = useState({
-    rentals: 0,     // sedang_disewa + dibayar
-    transaksi: 0,   // menunggu_pembayaran
-    pengiriman: 0,  // status_kembali === 'proses'
-    pengembalian: 0 // selesai recently
+    rentals: 0,
+    transaksi: 0,
+    pengiriman: 0,
+    pengembalian: 0
   });
 
   useEffect(() => {
@@ -58,31 +58,35 @@ export default function Sidebar({ user, isKtpVerified, getPhotoUrl, getInitials 
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="text-center">
-          <div className="relative inline-block">
-            <Avatar className="size-20 mx-auto ring-4 ring-primary/20">
+      <CardContent className="p-4 md:p-6">
+        {/* Mobile: compact horizontal layout / Desktop: centered vertical */}
+        <div className="flex items-center gap-3 lg:flex-col lg:text-center">
+          <div className="relative shrink-0">
+            <Avatar className="size-14 lg:size-20 mx-auto ring-4 ring-primary/20">
               <AvatarImage src={getPhotoUrl()} />
-              <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+              <AvatarFallback className="text-lg lg:text-2xl bg-primary/10 text-primary">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
           </div>
-          <h2 className="text-lg font-semibold mt-3">{user?.nama || 'User'}</h2>
-          <Badge className={`mt-1 text-xs ${user?.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}>
-            <CheckCircle size={10} className="mr-1" />
-            {user?.is_verified ? 'Terverifikasi' : 'Belum Verifikasi'}
-          </Badge>
+          <div className="min-w-0 lg:mt-3">
+            <h2 className="text-base lg:text-lg font-semibold truncate">{user?.nama || 'User'}</h2>
+            <Badge className={`mt-1 text-xs ${user?.is_verified ? 'bg-green-500' : 'bg-yellow-500'}`}>
+              <CheckCircle size={10} className="mr-1" />
+              {user?.is_verified ? 'Terverifikasi' : 'Belum Verifikasi'}
+            </Badge>
+          </div>
         </div>
 
-        <Separator className="my-4" />
+        <Separator className="my-3 lg:my-4" />
 
-        <div className="space-y-1">
+        {/* Mobile: horizontal scrollable tabs / Desktop: vertical list */}
+        <div className="flex lg:flex-col gap-1.5 overflow-x-auto pb-1 lg:pb-0 lg:overflow-visible -mx-1 lg:mx-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {menuItems.map((item) => (
             <Link 
               key={item.path}
               to={item.path} 
-              className={`flex items-center gap-3 text-sm py-2 px-3 rounded-lg transition-colors ${
+              className={`flex items-center gap-2 lg:gap-3 text-xs lg:text-sm py-2 px-3 rounded-lg transition-colors whitespace-nowrap shrink-0 no-underline ${
                 location.pathname === item.path 
                   ? "bg-primary/10 text-primary font-medium" 
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -99,31 +103,34 @@ export default function Sidebar({ user, isKtpVerified, getPhotoUrl, getInitials 
           ))}
         </div>
 
-        <Separator className="my-4" />
+        {/* Contact info - hidden on mobile to save space */}
+        <div className="hidden lg:block">
+          <Separator className="my-4" />
 
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center gap-2">
-            <Mail size={14} className="text-muted-foreground" />
-            <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center gap-2">
+              <Mail size={14} className="text-muted-foreground" />
+              <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone size={14} className="text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{user?.no_telp || '-'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin size={14} className="text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Indonesia</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Phone size={14} className="text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">{user?.no_telp || '-'}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin size={14} className="text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Indonesia</span>
-          </div>
+
+          <Separator className="my-4" />
+
+          <Link to="/">
+            <Button variant="outline" size="sm" className="w-full gap-2">
+              <Home size={14} />
+              Kembali ke Beranda
+            </Button>
+          </Link>
         </div>
-
-        <Separator className="my-4" />
-
-        <Link to="/">
-          <Button variant="outline" size="sm" className="w-full gap-2">
-            <Home size={14} />
-            Kembali ke Beranda
-          </Button>
-        </Link>
       </CardContent>
     </Card>
   );

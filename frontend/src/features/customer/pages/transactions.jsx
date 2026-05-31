@@ -134,9 +134,9 @@ export default function TransactionsPage() {
     const sisaDeposit = Math.max(0, Number(trans.nominal_deposit || 0) - Number(trans.pengembalian?.denda_kerusakan || 0) - Number(trans.pengembalian?.total_denda || 0));
 
     return (
-      <div key={trans.id_transaksi} className="border rounded-2xl bg-card overflow-hidden hover:shadow-md transition-shadow">
+      <div key={trans.id_transaksi} className="border rounded-xl md:rounded-2xl bg-card overflow-hidden hover:shadow-md transition-shadow">
         {/* ─ Card Header ─ */}
-        <div className="flex items-center justify-between gap-3 px-5 py-3 border-b bg-muted/30">
+        <div className="flex items-center justify-between gap-2 md:gap-3 px-3 md:px-5 py-2.5 md:py-3 border-b bg-muted/30">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />
             <div className="min-w-0">
@@ -154,7 +154,7 @@ export default function TransactionsPage() {
         </div>
 
         {/* ─ Card Body ─ */}
-        <div className="p-5 space-y-4">
+        <div className="p-3 md:p-5 space-y-3 md:space-y-4">
 
           {/* Daftar Barang */}
           {trans.detail_transaksi?.length > 0 && (
@@ -184,7 +184,7 @@ export default function TransactionsPage() {
           )}
 
           {/* ── Ringkasan Penyewaan ── */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
             <InfoRow icon={<Calendar className="w-3.5 h-3.5" />} label="Periode Sewa" value={`${trans.tanggal_mulai} — ${trans.tanggal_selesai} (${trans.total_hari} hari)`} />
             <InfoRow icon={<Store className="w-3.5 h-3.5" />} label="Pemilik" value={trans.pemilik?.nama || '-'} />
             <InfoRow icon={trans.metode_pengiriman === 'pickup' ? <Store className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />} label="Metode" value={trans.metode_pengiriman === 'pickup' ? 'Ambil di Tempat' : 'Delivery'} />
@@ -215,7 +215,7 @@ export default function TransactionsPage() {
               </div>
 
               {/* Deposit grid */}
-              <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                 <MiniCard label="Deposit Awal" value={formatRupiah(trans.nominal_deposit)} />
                 <MiniCard label="Denda Terlambat" value={formatRupiah(trans.pengembalian?.total_denda || 0)} negative={Number(trans.pengembalian?.total_denda || 0) > 0} />
                 <MiniCard label="Denda Kerusakan" value={formatRupiah(trans.pengembalian?.denda_kerusakan || 0)} negative={Number(trans.pengembalian?.denda_kerusakan || 0) > 0} />
@@ -331,13 +331,13 @@ export default function TransactionsPage() {
   return (
     <div className="min-h-screen bg-muted/30">
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 pt-24 pb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="max-w-6xl mx-auto px-4 pt-20 md:pt-24 pb-8 md:pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 md:gap-8">
           <Sidebar user={user} getPhotoUrl={getPhotoUrl} getInitials={getInitials} />
 
           <div className="lg:col-span-3 space-y-5">
             <Card className="border shadow-sm bg-card rounded-2xl overflow-hidden">
-              <CardHeader className="border-b bg-muted/30 px-6 py-5">
+              <CardHeader className="border-b bg-muted/30 px-4 md:px-6 py-4 md:py-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
@@ -351,10 +351,10 @@ export default function TransactionsPage() {
                 </div>
               </CardHeader>
 
-              <CardContent className="p-6 space-y-4">
+              <CardContent className="p-4 md:p-6 space-y-4">
                 {/* Toolbar */}
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="flex gap-1.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                     {[
                       { key: 'all', label: 'Semua', count: stats.total },
                       { key: 'aktif', label: 'Aktif', count: stats.aktif },

@@ -599,49 +599,49 @@ export default function CartPage() {
             <div className="space-y-5">
               {cart.map((item) => (
                 <div key={item.id_cart} className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="p-5 flex flex-col lg:flex-row gap-5">
+                  <div className="p-4 md:p-5 flex flex-col lg:flex-row gap-4 md:gap-5">
                     <div className="pt-1">
                       <input type="checkbox" checked={selectedItems[item.id_cart] || false} onChange={() => handleToggleSelect(item.id_cart)} className="w-5 h-5 accent-emerald-500" />
                     </div>
-                    <Link to={`/barang/${item.id_barang}`} className="w-full lg:w-44 h-44 bg-[#f7f7f7] rounded-[28px] overflow-hidden">
+                    <Link to={`/barang/${item.id_barang}`} className="w-full lg:w-44 h-36 md:h-44 bg-[#f7f7f7] rounded-[20px] md:rounded-[28px] overflow-hidden shrink-0">
                       <img src={getStorageUrl(item.foto_barang, "https://via.placeholder.com/300")} alt={item.nama_barang} className="w-full h-full object-cover" />
                     </Link>
                     <div className="flex-1">
                       <div className="flex justify-between gap-4">
                         <div>
                           <Link to={`/barang/${item.id_barang}`} className="hover:text-emerald-500 transition-colors">
-                            <h2 className="text-2xl font-black text-gray-900 mb-2">{item.nama_barang}</h2>
+                            <h2 className="text-lg md:text-2xl font-black text-gray-900 mb-1 md:mb-2">{item.nama_barang}</h2>
                           </Link>
                           <Link to={`/toko/${item.id_pemilik}`} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-emerald-500">
                             <Store className="w-4 h-4" /> {item.pemilik?.nama || "SiPetualang"}
                           </Link>
-                          <div className="mt-4 bg-gray-50 rounded-2xl px-4 py-3 inline-block">
-                            <p className="text-xs text-gray-400">Tanggal Rental</p>
-                            <p className="text-sm font-semibold text-gray-700">{item.tanggal_mulai} — {item.tanggal_selesai}</p>
+                          <div className="mt-2 md:mt-4 bg-gray-50 rounded-xl md:rounded-2xl px-3 md:px-4 py-2 md:py-3 inline-block">
+                            <p className="text-[10px] md:text-xs text-gray-400">Tanggal Rental</p>
+                            <p className="text-xs md:text-sm font-semibold text-gray-700">{item.tanggal_mulai} — {item.tanggal_selesai}</p>
                           </div>
                         </div>
-                        <button onClick={() => handleRemoveItem(item.id_cart)} className="w-12 h-12 rounded-2xl bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center">
+                        <button onClick={() => handleRemoveItem(item.id_cart)} className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center shrink-0">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
-                      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mt-8">
+                      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6 mt-4 md:mt-8">
                         <div>
-                          <p className="text-sm text-gray-400 mb-1">Harga Rental</p>
-                          <h3 className="text-3xl font-black text-emerald-500">Rp {Number(item.harga_sewa).toLocaleString("id-ID")}</h3>
-                          <span className="text-sm text-gray-400 block mb-1">/hari</span>
+                          <p className="text-xs md:text-sm text-gray-400 mb-1">Harga Rental</p>
+                          <h3 className="text-xl md:text-3xl font-black text-emerald-500">Rp {Number(item.harga_sewa).toLocaleString("id-ID")}</h3>
+                          <span className="text-xs md:text-sm text-gray-400 block mb-1">/hari</span>
                           {Number(item.nominal_deposit) > 0 && (
                             <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">Deposit: Rp {Number(item.nominal_deposit).toLocaleString("id-ID")}</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-5">
-                          <div className="flex items-center bg-gray-100 rounded-2xl overflow-hidden">
-                            <button onClick={() => handleUpdateQuantity(item.id_cart, item.jumlah - 1)} className="w-12 h-12"><Minus className="w-4 h-4" /></button>
-                            <div className="w-14 text-center font-bold text-gray-800">{item.jumlah}</div>
-                            <button onClick={() => handleUpdateQuantity(item.id_cart, item.jumlah + 1)} className="w-12 h-12"><Plus className="w-4 h-4" /></button>
+                        <div className="flex items-center gap-3 md:gap-5">
+                          <div className="flex items-center bg-gray-100 rounded-xl md:rounded-2xl overflow-hidden">
+                            <button onClick={() => handleUpdateQuantity(item.id_cart, item.jumlah - 1)} className="w-10 h-10 md:w-12 md:h-12"><Minus className="w-4 h-4" /></button>
+                            <div className="w-10 md:w-14 text-center font-bold text-gray-800 text-sm md:text-base">{item.jumlah}</div>
+                            <button onClick={() => handleUpdateQuantity(item.id_cart, item.jumlah + 1)} className="w-10 h-10 md:w-12 md:h-12"><Plus className="w-4 h-4" /></button>
                           </div>
                           <div className="text-right">
-                            <p className="text-xs text-gray-400">Total</p>
-                            <p className="text-2xl font-black text-gray-900">Rp {Number(item.total_harga).toLocaleString("id-ID")}</p>
+                            <p className="text-[10px] md:text-xs text-gray-400">Total</p>
+                            <p className="text-lg md:text-2xl font-black text-gray-900">Rp {Number(item.total_harga).toLocaleString("id-ID")}</p>
                           </div>
                         </div>
                       </div>
@@ -716,7 +716,7 @@ export default function CartPage() {
                   <div className="flex justify-between"><span className="text-gray-500">Subtotal Sewa</span><span className="font-bold text-gray-900">Rp {getSelectedTotal.toLocaleString("id-ID")}</span></div>
                   {getSelectedDepositTotal > 0 && (<div className="flex justify-between"><span className="text-gray-500">Total Deposit (Refundable)</span><span className="font-semibold text-gray-700">Rp {getSelectedDepositTotal.toLocaleString("id-ID")}</span></div>)}
                   {deliveryMethod === 'delivery' && shippingCost > 0 && (<div className="flex justify-between"><span className="text-gray-500">Ongkir (Rp 1.000/km)</span><span className="font-semibold text-gray-700">Rp {shippingCost.toLocaleString("id-ID")}</span></div>)}
-                  <div className="border-t pt-4 flex justify-between items-center"><span className="text-lg font-black text-gray-900">Total</span><span className="text-3xl font-black text-emerald-500">Rp {grandTotal.toLocaleString("id-ID")}</span></div>
+                  <div className="border-t pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"><span className="text-base md:text-lg font-black text-gray-900">Total</span><span className="text-xl md:text-3xl font-black text-emerald-500">Rp {grandTotal.toLocaleString("id-ID")}</span></div>
                 </div>
 
                 <button onClick={handleCheckout} disabled={processing || !isAnySelected} className="w-full mt-8 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white py-4 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2">

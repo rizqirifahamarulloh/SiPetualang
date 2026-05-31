@@ -27,6 +27,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [search, setSearch] = useState('');
+  const [mobileShowChat, setMobileShowChat] = useState(false);
 
   const messagesEndRef = useRef(null);
   const pollingInterval = useRef(null);
@@ -388,7 +389,7 @@ export default function ChatPage() {
         <div className="bg-white rounded-[28px] overflow-hidden shadow-2xl border border-gray-100 h-[calc(100vh-140px)]">
           <div className="flex h-full">
             {/* SIDEBAR */}
-            <div className="w-full md:w-[360px] border-r bg-white flex flex-col">
+            <div className={`w-full md:w-[360px] border-r bg-white flex flex-col ${mobileShowChat ? 'hidden md:flex' : 'flex'}`}>
               {/* HEADER */}
               <div className="p-5 border-b bg-gradient-to-r from-green-500 to-emerald-600 text-white">
                 <div className="flex items-center justify-between">
@@ -487,9 +488,10 @@ export default function ChatPage() {
                     return (
                       <button
                         key={conv.id_conversation}
-                        onClick={() =>
-                          fetchMessages(conv.id_conversation)
-                        }
+                        onClick={() => {
+                          fetchMessages(conv.id_conversation);
+                          setMobileShowChat(true);
+                        }}
                         className={`w-full p-4 border-b text-left transition ${
                           active
                             ? 'bg-green-50'
@@ -534,13 +536,19 @@ export default function ChatPage() {
             </div>
 
             {/* CHAT AREA */}
-            <div className="hidden md:flex flex-1 flex-col bg-gray-50">
+            <div className={`flex-1 flex-col bg-gray-50 ${mobileShowChat ? 'flex' : 'hidden md:flex'}`}>
               {currentChat ? (
                 <>
                   {/* HEADER */}
-                  <div className="bg-white border-b px-6 py-4 flex items-center gap-4 shadow-sm">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                      <User className="w-6 h-6 text-white" />
+                  <div className="bg-white border-b px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 md:gap-4 shadow-sm">
+                    <button
+                      onClick={() => setMobileShowChat(false)}
+                      className="md:hidden w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0"
+                    >
+                      <ArrowLeft className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
                     </div>
 
                     <div>
@@ -682,7 +690,7 @@ export default function ChatPage() {
               )}
             </div>
 
-            {/* MOBILE EMPTY */}
+            {/* MOBILE EMPTY - show when no chat selected on mobile */}
             {!currentChat && (
               <div className="md:hidden hidden"></div>
             )}

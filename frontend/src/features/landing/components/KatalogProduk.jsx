@@ -54,32 +54,32 @@ export default function KatalogProduk({
   };
 
   return (
-    <section className="max-w-[1240px] mx-auto px-6 pt-12 pb-24 font-sans antialiased">
+    <section className="max-w-[1240px] mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-16 md:pb-24 font-sans antialiased">
       {/* HEADER UTAMA SEKTOR */}
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-extrabold text-gray-950 tracking-tight mb-2">
+      <div className="text-center mb-8 md:mb-12">
+        <h2 className="text-xl md:text-3xl font-extrabold text-gray-950 tracking-tight mb-2">
           Pilihan Terbaik Minggu Ini!
         </h2>
-        <p className="text-xs text-gray-400 max-w-xl mx-auto leading-relaxed">
+        <p className="text-xs text-gray-400 max-w-xl mx-auto leading-relaxed px-2">
           Gear Pilihan Pendaki, Siap Temani Petualanganmu. Gear Pilihan Pendaki, Siap Temani Petualanganmu.
         </p>
       </div>
 
       {/* LAYOUT UTAMA: SIDEBAR (LEFT) + PRODUCT GRID (RIGHT) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
 
         {/* ================= LEFT SIDEBAR ================= */}
         <aside className="lg:col-span-3 flex flex-col gap-8">
 
           {/* Box Kategori Menu */}
-          <div className="bg-[#F8F9FA]/70 rounded-[20px] p-5 border border-gray-100">
-            <h3 className="text-xs font-bold text-[#00A779] uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="bg-[#F8F9FA]/70 rounded-[20px] p-4 md:p-5 border border-gray-100">
+            <h3 className="text-xs font-bold text-[#00A779] uppercase tracking-wider mb-3 md:mb-4 flex items-center gap-2">
               <span className="text-sm">→</span> Kategori
             </h3>
-            <div className="flex flex-col text-left">
+            <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible gap-2 lg:gap-0 pb-2 lg:pb-0 text-left -mx-1 lg:mx-0 scrollbar-hide">
               <button
                 onClick={() => setSelectedKategori('')}
-                className={`w-full text-left text-xs py-2.5 px-2 font-bold rounded-lg transition-all ${selectedKategori === '' ? 'text-[#00A779] bg-emerald-50/50' : 'text-gray-700 hover:text-gray-950'
+                className={`whitespace-nowrap lg:w-full text-left text-xs py-2 px-3 lg:px-2 font-bold rounded-lg transition-all shrink-0 ${selectedKategori === '' ? 'text-[#00A779] bg-emerald-50/50' : 'text-gray-700 hover:text-gray-950 bg-white lg:bg-transparent'
                   }`}
               >
                 Semua Alat
@@ -88,7 +88,7 @@ export default function KatalogProduk({
                 <button
                   key={kat.id_kategori}
                   onClick={() => setSelectedKategori(kat.id_kategori)}
-                  className={`w-full text-left text-xs py-2.5 px-2 font-bold border-t border-gray-100/70 transition-all ${selectedKategori === kat.id_kategori ? 'text-[#00A779] bg-emerald-50/50' : 'text-gray-600 hover:text-gray-950'
+                  className={`whitespace-nowrap lg:w-full text-left text-xs py-2 px-3 lg:px-2 font-bold lg:border-t border-gray-100/70 transition-all shrink-0 rounded-lg lg:rounded-none ${selectedKategori === kat.id_kategori ? 'text-[#00A779] bg-emerald-50/50' : 'text-gray-600 hover:text-gray-950 bg-white lg:bg-transparent'
                     }`}
                 >
                   {kat.nama_kategori}
@@ -224,7 +224,7 @@ export default function KatalogProduk({
               <p className="text-xs text-gray-400 mt-1">Coba gunakan filter atau kata kunci destinasi lainnya.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-x-3 md:gap-x-6 gap-y-8 md:gap-y-10">
               {filteredBarang.map((barang) => (
                 <div
                   key={barang.id_barang}
@@ -279,7 +279,7 @@ export default function KatalogProduk({
                   </div>
 
                   {/* DETAIL TEKS BAWAH (Harga & Nama Toko Tetap Ada!) */}
-                  <div className="mt-8 flex flex-col items-center gap-1">
+                  <div className="mt-6 md:mt-8 flex flex-col items-center gap-1">
                     <h3 className="font-bold text-gray-900 text-sm tracking-tight">
                       {barang.nama_barang}
                     </h3>
@@ -338,7 +338,7 @@ export default function KatalogProduk({
 
           {/* ================= INLINE CART SUMMARY ================= */}
           {cartItems.length > 0 && (
-            <div className="mt-16">
+            <div className="mt-10 md:mt-16">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-[#00A779] rounded-full flex items-center justify-center">

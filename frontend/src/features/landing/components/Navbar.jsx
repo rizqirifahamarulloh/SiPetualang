@@ -359,8 +359,8 @@ export default function Navbar({ forceScrolled = false }) {
     <motion.nav
       className={`fixed top-0 inset-x-0 z-[1000] transition-all duration-300 ease-in-out
         ${scrolled
-          ? 'bg-black/85 backdrop-blur-[12px] py-3.5 px-[60px] shadow-[0_4px_30px_rgba(0,0,0,0.3)] max-md:py-3 max-md:px-5 max-md:w-full max-md:rounded-none'
-          : 'py-5 px-[60px] max-md:px-5 max-md:py-4'
+          ? 'bg-black/85 backdrop-blur-[12px] py-3.5 px-[60px] shadow-[0_4px_30px_rgba(0,0,0,0.3)] max-md:py-2.5 max-md:px-4 max-md:w-full max-md:rounded-none'
+          : 'py-5 px-[60px] max-md:px-4 max-md:py-3'
         }
         ${mobileOpen ? 'max-md:bg-[rgb(15,15,15)]' : ''}
       `}
@@ -368,7 +368,7 @@ export default function Navbar({ forceScrolled = false }) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
-      <div className={`max-w-[1400px] mx-auto flex items-center justify-between ${scrolled ? 'pt-5 pb-5' : 'pt-8'}`}>
+      <div className={`max-w-[1400px] mx-auto flex items-center justify-between ${scrolled ? 'pt-5 pb-5 max-md:pt-2 max-md:pb-2' : 'pt-8 max-md:pt-4'}`}>
         <Link to="/" className="max-md:ml-3.5">
           <img src={logo} alt="SiPetualang Logo" className="h-10 w-auto" />
         </Link>
@@ -423,7 +423,7 @@ export default function Navbar({ forceScrolled = false }) {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute right-0 mt-3 w-[360px] h-[480px] rounded-2xl shadow-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col z-[1100]"
+                  className="absolute right-0 mt-3 w-[360px] max-md:w-[calc(100vw-32px)] max-md:fixed max-md:right-4 max-md:left-4 max-md:top-16 h-[480px] max-md:h-[70vh] rounded-2xl shadow-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col z-[1100]"
                 >
                   {/* HEADER */}
                   <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-4 text-white flex items-center gap-3">
