@@ -463,59 +463,65 @@ export default function ShippingStatus() {
         </Card>
       </div>
 
-      {/* Filter Tabs & Search */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-card p-3 rounded-xl border">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Cari transaksi, customer, barang, ID, atau NO RESI..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-4 py-2 w-full text-sm border rounded-lg focus:outline-none focus:border-emerald-500 bg-muted/30"
-          />
+      {/* Search & Filter Section */}
+      <Card className="border shadow-sm overflow-hidden">
+        {/* Search Row */}
+        <div className="px-5 py-4 border-b bg-card flex flex-col sm:flex-row gap-3 items-center">
+          <div className="relative w-full sm:max-w-sm">
+            <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Cari nama, barang, ID transaksi, atau No Resi..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 pr-4 py-2 w-full text-sm border rounded-lg focus:outline-none focus:border-emerald-500 bg-muted/30"
+            />
+          </div>
+          <div className="flex items-center gap-2 ml-auto">
+            <p className="text-xs text-muted-foreground whitespace-nowrap">
+              {filteredData.length} dari {data.length} transaksi
+            </p>
+            {search && (
+              <button onClick={() => setSearch("")} className="text-xs text-red-500 hover:text-red-600 whitespace-nowrap font-medium">
+                Reset
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-1 w-full md:w-auto">
+        {/* Filter Tabs */}
+        <div className="px-5 py-3 bg-muted/20 flex flex-wrap gap-1.5">
           {[
-            { id: "semua", label: "Semua" },
-            { id: "pickup", label: "Pick Up" },
-            { id: "pickup_menunggu", label: "Pickup Menunggu" },
-            { id: "delivery", label: "Delivery" },
-            { id: "perlu_dikirim", label: "Perlu Dikirim" },
-            { id: "dikirim", label: "Dalam Perjalanan" },
-            { id: "proses_kembali", label: "Proses Kembali" },
-            { id: "diterima", label: "Diterima" }
+            { id: "semua", label: "Semua", count: data.length },
+            { id: "delivery", label: "🚚 Delivery", count: data.filter(t => t.metode_pengiriman === 'delivery').length },
+            { id: "perlu_dikirim", label: "Perlu Dikirim", count: data.filter(t => t.metode_pengiriman === 'delivery' && (!t.pengiriman || t.pengiriman.status_pengiriman === 'pending')).length },
+            { id: "dikirim", label: "Dalam Perjalanan", count: data.filter(t => t.metode_pengiriman === 'delivery' && t.pengiriman?.status_pengiriman === 'dikirim').length },
+            { id: "pickup", label: "🏪 Pick Up", count: data.filter(t => t.metode_pengiriman === 'pickup').length },
+            { id: "pickup_menunggu", label: "Menunggu Diambil", count: data.filter(t => t.metode_pengiriman === 'pickup' && t.status_sewa === 'dibayar').length },
+            { id: "proses_kembali", label: "Proses Kembali", count: data.filter(t => t.status_kembali === 'proses').length },
+            { id: "diterima", label: "Diterima", count: data.filter(t => (t.metode_pengiriman === 'delivery' && t.pengiriman?.status_pengiriman === 'diterima') || (t.metode_pengiriman === 'pickup' && t.status_sewa === 'sedang_disewa')).length },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 activeTab === tab.id
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground bg-card border border-border"
               }`}
             >
               {tab.label}
+              {tab.count > 0 && (
+                <span className={`text-[9px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1 ${
+                  activeTab === tab.id ? "bg-white/25 text-white" : "bg-muted text-muted-foreground"
+                }`}>
+                  {tab.count}
+                </span>
+              )}
             </button>
           ))}
         </div>
-      </div>
-
-      {/* Info hasil filter */}
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          Menampilkan {filteredData.length} dari {data.length} transaksi
-        </p>
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="text-xs text-emerald-600 hover:text-emerald-700"
-          >
-            Reset Filter
-          </button>
-        )}
-      </div>
+      </Card>
 
       {/* Main Table / List Card */}
       {loading ? (

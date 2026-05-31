@@ -38,6 +38,12 @@ export const adminService = {
     return response
   },
 
+  // Get sidebar badge counts (lightweight)
+  async getSidebarBadges() {
+    const response = await api.get('/admin/sidebar-badges')
+    return response
+  },
+
   // Get verifications
   async getVerifications() {
     const response = await api.get('/admin/verifikasi')
@@ -99,6 +105,24 @@ export const adminService = {
 
   async pickupBarangDiambil(id) {
     const response = await api.post(`/admin/pengiriman/${id}/pickup-diambil`)
+    return response.data
+  },
+
+  // 💰 Deposit Refund
+  async getDepositRefunds() {
+    const response = await api.get('/admin/deposit-refund')
+    return response.data
+  },
+
+  async processDepositRefund(id, data) {
+    const formData = new FormData()
+    formData.append('refund_amount', data.refund_amount)
+    formData.append('refund_method', data.refund_method)
+    if (data.refund_note) formData.append('refund_note', data.refund_note)
+    if (data.refund_proof) formData.append('refund_proof', data.refund_proof)
+    const response = await api.post(`/admin/deposit-refund/${id}/process`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
     return response.data
   }
 }

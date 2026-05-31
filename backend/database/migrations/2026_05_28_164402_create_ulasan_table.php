@@ -11,8 +11,18 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('ulasan', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_ulasan');
+            $table->unsignedBigInteger('id_transaksi');
+            $table->unsignedBigInteger('id_pengguna');
+            $table->unsignedBigInteger('id_barang');
+            $table->tinyInteger('rating')->comment('1-5');
+            $table->text('komentar')->nullable();
+            $table->text('foto_ulasan')->nullable(); // JSON array of paths
             $table->timestamps();
+
+            $table->unique('id_transaksi'); // 1 transaksi = 1 ulasan
+            $table->index('id_barang');
+            $table->index('id_pengguna');
         });
     }
 

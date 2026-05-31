@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
+import { transactionService } from '../services/transactionService';
 import { 
   Shield, 
   User,
@@ -20,14 +22,38 @@ import {
 
 export default function Sidebar({ user, isKtpVerified, getPhotoUrl, getInitials }) {
   const location = useLocation();
+  const [counts, setCounts] = useState({
+    rentals: 0,     // sedang_disewa + dibayar
+    transaksi: 0,   // menunggu_pembayaran
+    pengiriman: 0,  // status_kembali === 'proses'
+    pengembalian: 0 // selesai recently
+  });
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await transactionService.getTransaksiSebagaiPenyewa();
+        const data = response.data || [];
+        setCounts({
+          rentals: data.filter(t => t.status_sewa === 'sedang_disewa' || t.status_sewa === 'dibayar').length,
+          transaksi: data.filter(t => t.status_sewa === 'menunggu_pembayaran').length,
+          pengiriman: data.filter(t => t.status_sewa === 'sedang_disewa' && t.status_kembali === 'proses').length,
+          pengembalian: data.filter(t => t.status_sewa === 'selesai' && t.deposit_status === 'pending').length,
+        });
+      } catch {
+        // silent fail
+      }
+    };
+    fetchCounts();
+  }, []);
 
   const menuItems = [
-    { name: 'Profil Saya', path: '/profile', icon: <User size={16} /> },
-    { name: 'Penyewaan Saya', path: '/profile/rentals', icon: <Package size={16} /> },
-    { name: 'Transaksi', path: '/profile/transaksi', icon: <CreditCard size={16} /> },
-    { name: 'Status Pengiriman', path: '/profile/pengiriman', icon: <Truck size={16} /> },
-    { name: 'Pengembalian', path: '/profile/pengembalian', icon: <RotateCcw size={16} /> },
-    { name: 'Verifikasi', path: '/customer/verification', icon: <Shield size={16} /> },
+    { name: 'Profil Saya', path: '/profile', icon: <User size={16} />, badge: 0 },
+    { name: 'Penyewaan Saya', path: '/profile/rentals', icon: <Package size={16} />, badge: counts.rentals, badgeColor: 'bg-emerald-500' },
+    { name: 'Transaksi', path: '/profile/transaksi', icon: <CreditCard size={16} />, badge: counts.transaksi, badgeColor: 'bg-amber-500' },
+    { name: 'Status Pengiriman', path: '/profile/pengiriman', icon: <Truck size={16} />, badge: counts.pengiriman, badgeColor: 'bg-blue-500' },
+    { name: 'Pengembalian', path: '/profile/pengembalian', icon: <RotateCcw size={16} />, badge: counts.pengembalian, badgeColor: 'bg-violet-500' },
+    { name: 'Verifikasi', path: '/customer/verification', icon: <Shield size={16} />, badge: 0 },
   ];
 
   return (
@@ -63,7 +89,12 @@ export default function Sidebar({ user, isKtpVerified, getPhotoUrl, getInitials 
               }`}
             >
               {item.icon}
-              {item.name}
+              <span className="flex-1">{item.name}</span>
+              {item.badge > 0 && (
+                <span className={`${item.badgeColor || 'bg-primary'} text-white text-[9px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1 animate-pulse`}>
+                  {item.badge}
+                </span>
+              )}
             </Link>
           ))}
         </div>

@@ -107,27 +107,27 @@ export default function KatalogProduk({
                 .sort((a, b) => b.id_barang - a.id_barang)
                 .slice(0, 5)
                 .map((item) => (
-                <div
-                  key={item.id_barang}
-                  className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 -mx-1.5 transition-colors"
-                  onClick={() => requireAuth(() => navigate(`/barang/${item.id_barang}`))}
-                >
-                  <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                    <img
-                      src={getImageUrl(item)}
-                      alt={item.nama_barang}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/60?text=No+Img'; }}
-                    />
+                  <div
+                    key={item.id_barang}
+                    className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 -mx-1.5 transition-colors"
+                    onClick={() => requireAuth(() => navigate(`/barang/${item.id_barang}`))}
+                  >
+                    <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden shrink-0">
+                      <img
+                        src={getImageUrl(item)}
+                        alt={item.nama_barang}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/60?text=No+Img'; }}
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-gray-900 mb-0.5 truncate">{item.nama_barang}</h4>
+                      <p className="text-[11px] font-semibold text-[#00A779]">
+                        Rp {Number(item.harga_sewa).toLocaleString()} <span className="text-gray-400 font-normal">/Hari</span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-gray-900 mb-0.5 truncate">{item.nama_barang}</h4>
-                    <p className="text-[11px] font-semibold text-[#00A779]">
-                      Rp {Number(item.harga_sewa).toLocaleString()} <span className="text-gray-400 font-normal">/Hari</span>
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
               {filteredBarang.length === 0 && (
                 <p className="text-xs text-gray-400">Belum ada barang.</p>
               )}
@@ -144,39 +144,38 @@ export default function KatalogProduk({
                 .sort((a, b) => (b.total_disewa || 0) - (a.total_disewa || 0))
                 .slice(0, 5)
                 .map((item, idx) => (
-                <div
-                  key={item.id_barang}
-                  className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 -mx-1.5 transition-colors"
-                  onClick={() => requireAuth(() => navigate(`/barang/${item.id_barang}`))}
-                >
-                  <div className="relative shrink-0">
-                    <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden">
-                      <img
-                        src={getImageUrl(item)}
-                        alt={item.nama_barang}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.src = 'https://via.placeholder.com/60?text=No+Img'; }}
-                      />
+                  <div
+                    key={item.id_barang}
+                    className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-xl p-1.5 -mx-1.5 transition-colors"
+                    onClick={() => requireAuth(() => navigate(`/barang/${item.id_barang}`))}
+                  >
+                    <div className="relative shrink-0">
+                      <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden">
+                        <img
+                          src={getImageUrl(item)}
+                          alt={item.nama_barang}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.src = 'https://via.placeholder.com/60?text=No+Img'; }}
+                        />
+                      </div>
+                      {idx < 3 && (
+                        <span className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full text-[9px] font-black flex items-center justify-center text-white shadow ${idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-gray-400' : 'bg-amber-700'
+                          }`}>
+                          {idx + 1}
+                        </span>
+                      )}
                     </div>
-                    {idx < 3 && (
-                      <span className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full text-[9px] font-black flex items-center justify-center text-white shadow ${
-                        idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-gray-400' : 'bg-amber-700'
-                      }`}>
-                        {idx + 1}
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-gray-900 mb-0.5 truncate">{item.nama_barang}</h4>
+                      <p className="text-[11px] font-semibold text-[#00A779]">
+                        Rp {Number(item.harga_sewa).toLocaleString()} <span className="text-gray-400 font-normal">/Hari</span>
+                      </p>
+                      <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">
+                        {item.total_disewa || 0}x disewa
                       </span>
-                    )}
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-gray-900 mb-0.5 truncate">{item.nama_barang}</h4>
-                    <p className="text-[11px] font-semibold text-[#00A779]">
-                      Rp {Number(item.harga_sewa).toLocaleString()} <span className="text-gray-400 font-normal">/Hari</span>
-                    </p>
-                    <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full">
-                      {item.total_disewa || 0}x disewa
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))}
               {filteredBarang.length === 0 && (
                 <p className="text-xs text-gray-400">Belum ada data.</p>
               )}
@@ -263,13 +262,12 @@ export default function KatalogProduk({
                           e.stopPropagation();
                           handleAddToCart(barang);
                         }}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(0,167,121,0.25)] transition-all active:scale-95 border-[3px] border-white cursor-pointer ${
-                          addedFeedback === barang.id_barang
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(0,167,121,0.25)] transition-all active:scale-95 border-[3px] border-white cursor-pointer ${addedFeedback === barang.id_barang
                             ? 'bg-emerald-600 scale-110'
                             : isInCart(barang.id_barang)
                               ? 'bg-emerald-700 hover:bg-emerald-800'
                               : 'bg-[#00A779] hover:bg-[#008f68]'
-                        }`}
+                          }`}
                       >
                         {addedFeedback === barang.id_barang ? (
                           <Check className="w-5 h-5 text-white" />
@@ -286,10 +284,10 @@ export default function KatalogProduk({
                       {barang.nama_barang}
                     </h3>
 
-                    {/* Star Rating */}
+                    {/* Star Rating - Dynamic from DB */}
                     {(() => {
-                      const rating = ((barang.id_barang * 7 + 13) % 15 + 36) / 10;
-                      const reviewCount = (barang.id_barang * 17 + 5) % 80 + 12;
+                      const rating = barang.avg_rating || 0;
+                      const reviewCount = barang.total_ulasan || 0;
                       return (
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <div className="flex items-center gap-px">
@@ -305,7 +303,7 @@ export default function KatalogProduk({
                               );
                             })}
                           </div>
-                          <span className="text-[11px] font-bold text-gray-700">{rating.toFixed(1)}</span>
+                          <span className="text-[11px] font-bold text-gray-700">{rating > 0 ? (typeof rating === 'number' ? rating.toFixed(1) : rating) : '0.0'}</span>
                           <span className="text-[10px] text-gray-400">({reviewCount})</span>
                         </div>
                       );
@@ -374,9 +372,8 @@ export default function KatalogProduk({
                 {cartItems.map((item, index) => (
                   <div
                     key={item.id_cart}
-                    className={`grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-6 py-5 transition-colors hover:bg-gray-50/50 ${
-                      index < cartItems.length - 1 ? 'border-b border-gray-100' : ''
-                    }`}
+                    className={`grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-6 py-5 transition-colors hover:bg-gray-50/50 ${index < cartItems.length - 1 ? 'border-b border-gray-100' : ''
+                      }`}
                   >
                     {/* Remove Button */}
                     <div className="md:col-span-1 flex items-center">

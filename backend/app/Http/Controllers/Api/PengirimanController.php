@@ -407,11 +407,17 @@ class PengirimanController extends Controller
                 ]
             );
 
-            // Update transaksi
+            // Update transaksi + auto-set deposit status
+            $depositStatus = 'none';
+            if ($nominalDeposit > 0) {
+                $depositStatus = $sisaDeposit > 0 ? 'pending' : 'forfeited';
+            }
+
             $transaksi->update([
                 'status_sewa' => 'selesai',
                 'status_kembali' => 'diterima',
-                'tanggal_kembali_real' => $tanggalKembali->format('Y-m-d')
+                'tanggal_kembali_real' => $tanggalKembali->format('Y-m-d'),
+                'deposit_status' => $depositStatus,
             ]);
 
             // Kirim notifikasi penutupan transaksi kepada customer

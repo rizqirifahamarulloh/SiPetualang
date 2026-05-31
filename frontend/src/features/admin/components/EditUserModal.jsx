@@ -22,7 +22,7 @@ export default function EditUserModal({ isOpen, onClose, user, onSave }) {
       setFormData({
         nama: user.nama || '',
         email: user.email || '',
-        telepon: user.telepon || '',
+        telepon: user.no_telp || '',
         tanggal_lahir: user.tanggal_lahir || '',
         alamat: user.alamat || '',
         peran: user.peran_pengguna === 'admin' ? 'staff' : 'customer',

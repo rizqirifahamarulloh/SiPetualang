@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\DetailTransaksi;
+use App\Models\Ulasan;
 
 class Barang extends Model
 {
@@ -31,6 +32,8 @@ class Barang extends Model
         'status_penyerahan'
     ];
 
+    protected $appends = ['avg_rating', 'total_ulasan'];
+
     public function pemilik()
     {
         return $this->belongsTo(Pengguna::class, 'id_pemilik', 'id_pengguna');
@@ -45,4 +48,21 @@ class Barang extends Model
     {
         return $this->hasMany(DetailTransaksi::class, 'id_barang', 'id_barang');
     }
+
+    public function ulasan()
+    {
+        return $this->hasMany(Ulasan::class, 'id_barang', 'id_barang');
+    }
+
+    public function getAvgRatingAttribute()
+    {
+        $avg = $this->ulasan()->avg('rating');
+        return $avg ? round($avg, 1) : 0;
+    }
+
+    public function getTotalUlasanAttribute()
+    {
+        return $this->ulasan()->count();
+    }
 }
+

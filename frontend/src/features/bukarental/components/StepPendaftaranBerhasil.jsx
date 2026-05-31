@@ -1,27 +1,27 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, Clock, ShieldCheck } from 'lucide-react'
+import { Clock, ShieldCheck, PartyPopper, Home } from 'lucide-react'
 
-export default function StepPendaftaranBerhasil({ status }) {
-  const [countdown, setCountdown] = useState(5)
+export default function StepPendaftaranBerhasil({ status, isInstantlyActivated }) {
+  const [countdown, setCountdown] = useState(10)
   const navigate = useNavigate()
 
   // Jika status pending, kita tampilkan pesan menunggu. 
-  // Jika status disetujui ATAU tidak ada status (baru selesai submit), tampilkan pesan sukses.
-  const isPending = status === 'pending'
-  const isApproved = status === 'disetujui'
+  // Jika status disetujui ATAU isInstantlyActivated, tampilkan pesan sukses.
+  const isPending = status === 'pending' && !isInstantlyActivated
+  const showSuccess = isInstantlyActivated || status === 'disetujui'
 
   useEffect(() => {
-    // Hanya redirect otomatis jika sudah disetujui
-    if (!isApproved) return
+    // Hanya countdown jika sukses (langsung aktif)
+    if (!showSuccess) return
 
     if (countdown <= 0) {
-      navigate('/rental-dashboard')
+      navigate('/rental-dashboard', { replace: true })
       return
     }
     const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000)
     return () => clearTimeout(timer)
-  }, [countdown, navigate, isApproved])
+  }, [countdown, navigate, showSuccess])
 
   return (
     <div className="py-16 px-6 max-w-[520px] mx-auto text-center">
@@ -46,7 +46,7 @@ export default function StepPendaftaranBerhasil({ status }) {
         )}
       </p>
 
-      {isApproved ? (
+      {showSuccess ? (
         <>
           <p className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-4">
             Mengarahkan ke Dashboard
@@ -59,9 +59,17 @@ export default function StepPendaftaranBerhasil({ status }) {
           <div className="flex flex-col gap-3 max-w-[340px] mx-auto">
             <button
               className="br-btn-primary w-full justify-center"
-              onClick={() => navigate('/rental-dashboard')}
+              onClick={() => navigate('/rental-dashboard', { replace: true })}
             >
+              <PartyPopper size={16} className="mr-2" />
               Buka Dashboard Sekarang
+            </button>
+            <button
+              className="w-full py-3 px-6 rounded-xl text-sm font-semibold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors border-none cursor-pointer flex items-center justify-center gap-2"
+              onClick={() => navigate('/', { replace: true })}
+            >
+              <Home size={14} />
+              Nanti Saja
             </button>
           </div>
         </>
@@ -71,7 +79,7 @@ export default function StepPendaftaranBerhasil({ status }) {
             className="br-btn-primary w-full justify-center"
             onClick={() => navigate('/')}
           >
-            {isPending ? 'Kembali ke Beranda' : 'Buka Dashboard'}
+            Kembali ke Beranda
           </button>
         </div>
       )}

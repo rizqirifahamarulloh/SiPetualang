@@ -1,12 +1,11 @@
 // frontend/src/services/api.js
 import axios from 'axios'
 
-// API Base URL configuration
-// Priority: VITE_API_BASE_URL env var > auto-detect production > localhost fallback
-const PRODUCTION_API = 'https://sipetualang-rental.up.railway.app';
-const LOCAL_API = 'http://localhost:8000';
+// Toggle between Production API and Local API
+// Set to true to use the online production API, or false for local development
+export const USE_PRODUCTION_API = false;
 
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? PRODUCTION_API : LOCAL_API);
+export const BASE_URL = USE_PRODUCTION_API ? 'https://api.fakerryugan.my.id' : 'http://localhost:8000';
 export const API_URL = `${BASE_URL}/api`;
 
 const api = axios.create({

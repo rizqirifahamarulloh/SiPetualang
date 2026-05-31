@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Sparkles, Camera, Upload, X, CheckCircle2 } from 'lucide-react'
+import { Sparkles, Camera, Upload, X, CheckCircle2, ShieldCheck } from 'lucide-react'
 
 function UploadBox({ title, subtitle, file, setFile, icon: Icon }) {
   const [preview, setPreview] = useState(null)
@@ -82,7 +82,10 @@ function UploadBox({ title, subtitle, file, setFile, icon: Icon }) {
   )
 }
 
-export default function StepUnggahKTP({ onNext, onBack, ktpFile, setKtpFile, selfieFile, setSelfieFile, rejectionNote }) {
+export default function StepUnggahKTP({ onNext, onBack, ktpFile, setKtpFile, selfieFile, setSelfieFile, rejectionNote, isAlreadyVerified }) {
+  // Jika KTP sudah terverifikasi, tombol langsung aktif tanpa perlu upload
+  const canProceed = isAlreadyVerified || (ktpFile && selfieFile)
+
   return (
     <div className="py-10 px-6 max-w-[850px] mx-auto">
       <div className="br-step-badge">
@@ -94,6 +97,22 @@ export default function StepUnggahKTP({ onNext, onBack, ktpFile, setKtpFile, sel
       <p className="br-section-desc">
         KTP diperlukan untuk prosedur keamanan penyewaan alat dan memastikan ekosistem persewaan gear tetap aman bagi semua mitra.
       </p>
+
+      {/* Banner: KTP sudah terverifikasi */}
+      {isAlreadyVerified && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 mb-8 flex items-start gap-4">
+          <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 shrink-0">
+            <ShieldCheck size={24} />
+          </div>
+          <div>
+            <h4 className="text-emerald-800 font-bold text-sm mb-1">KTP Sudah Terverifikasi ✓</h4>
+            <p className="text-emerald-700 text-xs leading-relaxed">
+              Data KTP Kamu sudah terverifikasi sebelumnya. Kamu tidak perlu mengunggah ulang foto KTP. 
+              Langsung klik <strong>"Selesaikan Pendaftaran"</strong> untuk mengaktifkan fitur rental.
+            </p>
+          </div>
+        </div>
+      )}
 
       {rejectionNote && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8 flex items-start gap-4">
@@ -109,68 +128,73 @@ export default function StepUnggahKTP({ onNext, onBack, ktpFile, setKtpFile, sel
         </div>
       )}
 
-      {/* Upload Areas Grid */}
-      <div className="flex flex-wrap gap-6 mb-10">
-        <UploadBox
-          title="Foto KTP Asli"
-          subtitle="Pastikan seluruh bagian KTP terbaca jelas dan tidak terpotong."
-          file={ktpFile}
-          setFile={setKtpFile}
-          icon={Camera}
-        />
-        <UploadBox
-          title="Selfie + KTP"
-          subtitle="Pegang KTP di bawah dagu. Pastikan wajah dan KTP terlihat jelas."
-          file={selfieFile}
-          setFile={setSelfieFile}
-          icon={Upload}
-        />
-      </div>
-
-      {/* Panduan Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-[#f0fdf4] rounded-2xl p-6 border border-emerald-50">
-          <div className="flex items-center gap-2 mb-4 text-emerald-700">
-            <CheckCircle2 size={18} />
-            <h4 className="font-bold text-sm uppercase tracking-wider">Panduan Foto KTP</h4>
+      {/* Upload Areas — hanya tampil jika belum terverifikasi */}
+      {!isAlreadyVerified && (
+        <>
+          {/* Upload Areas Grid */}
+          <div className="flex flex-wrap gap-6 mb-10">
+            <UploadBox
+              title="Foto KTP Asli"
+              subtitle="Pastikan seluruh bagian KTP terbaca jelas dan tidak terpotong."
+              file={ktpFile}
+              setFile={setKtpFile}
+              icon={Camera}
+            />
+            <UploadBox
+              title="Selfie + KTP"
+              subtitle="Pegang KTP di bawah dagu. Pastikan wajah dan KTP terlihat jelas."
+              file={selfieFile}
+              setFile={setSelfieFile}
+              icon={Upload}
+            />
           </div>
-          <ul className="space-y-3">
-            <li className="flex gap-3 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
-              <span>KTP harus asli, bukan fotokopi atau scan.</span>
-            </li>
-            <li className="flex gap-3 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
-              <span>Tulisan dan angka terbaca jelas dan tidak terpotong.</span>
-            </li>
-            <li className="flex gap-3 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
-              <span>Tidak tertutup bayangan atau pantulan cahaya.</span>
-            </li>
-          </ul>
-        </div>
 
-        <div className="bg-[#f0fdf4] rounded-2xl p-6 border border-emerald-50">
-          <div className="flex items-center gap-2 mb-4 text-emerald-700">
-            <CheckCircle2 size={18} />
-            <h4 className="font-bold text-sm uppercase tracking-wider">Panduan Selfie</h4>
+          {/* Panduan Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-[#f0fdf4] rounded-2xl p-6 border border-emerald-50">
+              <div className="flex items-center gap-2 mb-4 text-emerald-700">
+                <CheckCircle2 size={18} />
+                <h4 className="font-bold text-sm uppercase tracking-wider">Panduan Foto KTP</h4>
+              </div>
+              <ul className="space-y-3">
+                <li className="flex gap-3 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
+                  <span>KTP harus asli, bukan fotokopi atau scan.</span>
+                </li>
+                <li className="flex gap-3 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
+                  <span>Tulisan dan angka terbaca jelas dan tidak terpotong.</span>
+                </li>
+                <li className="flex gap-3 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
+                  <span>Tidak tertutup bayangan atau pantulan cahaya.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-[#f0fdf4] rounded-2xl p-6 border border-emerald-50">
+              <div className="flex items-center gap-2 mb-4 text-emerald-700">
+                <CheckCircle2 size={18} />
+                <h4 className="font-bold text-sm uppercase tracking-wider">Panduan Selfie</h4>
+              </div>
+              <ul className="space-y-3">
+                <li className="flex gap-3 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
+                  <span>Wajah terlihat jelas tanpa masker/kacamata hitam.</span>
+                </li>
+                <li className="flex gap-3 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
+                  <span>Pegang KTP di bawah dagu, jangan tutupi wajah.</span>
+                </li>
+                <li className="flex gap-3 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
+                  <span>Pastikan kamera fokus pada wajah dan kartu KTP.</span>
+                </li>
+              </ul>
+            </div>
           </div>
-          <ul className="space-y-3">
-            <li className="flex gap-3 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
-              <span>Wajah terlihat jelas tanpa masker/kacamata hitam.</span>
-            </li>
-            <li className="flex gap-3 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
-              <span>Pegang KTP di bawah dagu, jangan tutupi wajah.</span>
-            </li>
-            <li className="flex gap-3 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0"></span>
-              <span>Pastikan kamera fokus pada wajah dan kartu KTP.</span>
-            </li>
-          </ul>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* Encrypted Data Info */}
       <div className="bg-emerald-50 rounded-xl p-5 flex items-center gap-4 border border-emerald-100">
@@ -194,9 +218,9 @@ export default function StepUnggahKTP({ onNext, onBack, ktpFile, setKtpFile, sel
         </button>
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            className={`br-btn-next ${(!ktpFile || !selfieFile) ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+            className={`br-btn-next ${!canProceed ? 'opacity-50 cursor-not-allowed bg-gray-400' : 'bg-emerald-600 hover:bg-emerald-700'}`}
             onClick={onNext}
-            disabled={!ktpFile || !selfieFile}
+            disabled={!canProceed}
           >
             Selesaikan Pendaftaran
           </button>

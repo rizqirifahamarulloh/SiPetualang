@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Customer\RentalController;
 use App\Http\Controllers\Api\Customer\ChatController;
 use App\Http\Controllers\Api\Customer\TransaksiController;
 use App\Http\Controllers\Api\Customer\PengajuanPengembalianController;
+use App\Http\Controllers\Api\Customer\UlasanController;
 use App\Http\Controllers\Api\Admin\KategoriController;
 use App\Http\Controllers\Api\Admin\DestinasiController;
 use App\Http\Controllers\Api\Admin\BarangController as AdminBarangController;
@@ -38,6 +39,9 @@ Route::get('/rental/barang/{id}', [RentalController::class, 'getBarangById']);
 Route::get('/toko/pengguna/{id}', [TokoController::class, 'getPengguna']);
 Route::get('/toko/barang/{ownerId}', [TokoController::class, 'getBarangByOwner']);
 Route::post('/payment/midtrans/notification', [TransaksiController::class, 'handleNotification']);
+
+// PUBLIC ULASAN ROUTES
+Route::get('/ulasan/barang/{id}', [UlasanController::class, 'getByBarang']);
 
 /*
 |--------------------------------------------------------------------------
@@ -112,6 +116,12 @@ Route::middleware(['jwt.auth'])->group(function () {
             Route::get('/', [PengajuanPengembalianController::class, 'myRequests']);
             Route::get('/sebagai-pemilik', [PengajuanPengembalianController::class, 'getByPemilik']);
         });
+
+        // ⭐ ULASAN ROUTES
+        Route::prefix('ulasan')->group(function () {
+            Route::post('/', [UlasanController::class, 'store']);
+            Route::get('/check/{id_transaksi}', [UlasanController::class, 'check']);
+        });
     });
 
     /*
@@ -122,6 +132,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     Route::middleware([RoleMiddleware::class . ':admin'])->prefix('admin')->group(function () {
 
         Route::get('/dashboard', [AdminController::class, 'dashboard']);
+        Route::get('/sidebar-badges', [AdminController::class, 'sidebarBadges']);
         Route::post('/users/{id}/reset-password', [AdminController::class, 'resetPassword']);
         Route::apiResource('/users', AdminController::class);
         Route::get('/verifikasi', [VerifikasiController::class, 'index']);
@@ -159,6 +170,10 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::post('/pengembalian/{id}/approve', [PengajuanPengembalianController::class, 'approve']);
         Route::post('/pengembalian/{id}/reject', [PengajuanPengembalianController::class, 'reject']);
         Route::post('/pengembalian/{id}/confirm-refund', [PengajuanPengembalianController::class, 'confirmRefund']);
+
+        // 💰 Admin Deposit Refund
+        Route::get('/deposit-refund', [\App\Http\Controllers\Api\Admin\DepositRefundController::class, 'index']);
+        Route::post('/deposit-refund/{id}/process', [\App\Http\Controllers\Api\Admin\DepositRefundController::class, 'process']);
     });
 
     /*

@@ -445,7 +445,7 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="bg-white min-h-screen">
-        <Navbar />
+        <Navbar forceScrolled />
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <Loader2 className="w-14 h-14 animate-spin text-emerald-500 mx-auto mb-4" />
@@ -461,7 +461,7 @@ export default function CartPage() {
   if (!user) {
     return (
       <div className="bg-white min-h-screen">
-        <Navbar />
+        <Navbar forceScrolled />
         <div className="min-h-screen flex items-center justify-center px-5">
           <div className="bg-white p-10 rounded-[30px] shadow-xl text-center max-w-md w-full">
             <ShoppingBag className="w-20 h-20 text-gray-300 mx-auto mb-5" />
@@ -481,8 +481,50 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="bg-white min-h-screen">
-        <Navbar />
-        <div className="min-h-screen flex items-center justify-center px-5">
+        <Navbar forceScrolled />
+
+        {/* HERO BANNER */}
+        <section
+          className="relative w-full bg-white"
+          style={{ padding: '16px 16px 0 16px' }}
+        >
+          <div className="relative w-full">
+            <div className="relative w-full h-[300px] md:h-[600px] rounded-[16px] md:rounded-[24px] overflow-hidden">
+              <img
+                src={bannerBg}
+                alt="Cart Banner"
+                className="w-full h-full object-cover object-center block"
+              />
+              <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+              <div className="absolute inset-0 z-[1] flex items-center justify-center">
+                <h1 className="text-[40px] md:text-[60px] font-extrabold text-white leading-none tracking-tight select-none text-center" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.25)' }}>
+                  Keranjang Rental
+                </h1>
+              </div>
+            </div>
+            {/* Breadcrumb */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 flex items-end">
+              <div className="w-[20px] h-[20px] bg-transparent" style={{ boxShadow: '8px 8px 0 8px white', borderRadius: '0 0 16px 0' }} />
+              <div className="bg-white px-12 py-3 rounded-t-[18px]">
+                <div className="flex items-center gap-2 text-[13px] font-medium text-gray-400 whitespace-nowrap">
+                  <Link to="/" className="hover:text-emerald-500 transition-colors no-underline text-gray-400">
+                    Home
+                  </Link>
+                  <span className="text-gray-300 font-light">&gt;</span>
+                  <Link to="/sewa-alat" className="hover:text-emerald-500 transition-colors no-underline text-gray-400">
+                    Sewa Alat
+                  </Link>
+                  <span className="text-gray-300 font-light">&gt;</span>
+                  <span className="text-gray-700 font-semibold">Keranjang</span>
+                </div>
+              </div>
+              <div className="w-[20px] h-[20px] bg-transparent" style={{ boxShadow: '-8px 8px 0 8px white', borderRadius: '0 0 0 16px' }} />
+            </div>
+          </div>
+        </section>
+
+        {/* Empty State */}
+        <div className="flex items-center justify-center px-5 py-20">
           <div className="bg-white p-10 rounded-[30px] shadow-xl text-center max-w-md w-full">
             <ShoppingBag className="w-24 h-24 text-gray-300 mx-auto mb-5" />
             <h1 className="text-3xl font-black text-gray-900 mb-2">Keranjang Kosong</h1>
@@ -499,7 +541,7 @@ export default function CartPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Navbar />
+      <Navbar forceScrolled />
 
       {/* HERO BANNER */}
       <section

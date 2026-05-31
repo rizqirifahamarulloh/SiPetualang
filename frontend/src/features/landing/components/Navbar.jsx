@@ -10,6 +10,7 @@ import logo from '@/assets/beranda/Logo.png'
 import cartIcon from '@/assets/beranda/icon-simple-cart.svg'
 import arrowRight from '@/assets/beranda/icon-arrow-right.svg'
 import api from '@/services/api'
+import { getStorageUrl } from '@/utils/storageUrl'
 
 export default function Navbar({ forceScrolled = false }) {
   const [scrolled, setScrolled] = useState(forceScrolled)
@@ -157,12 +158,15 @@ export default function Navbar({ forceScrolled = false }) {
     return () => clearInterval(interval)
   }, [isAuthenticated, user?.rental])
 
+  // Determine rental nav label & link based on role
+  const isPerental = user?.peran_pengguna === 'perental';
+
   // Nav links
   const navLinks = [
     { label: t('nav.home'), href: '/' },
     { label: t('nav.catalog'), href: '/sewa-alat' },
     { label: t('nav.howItWorks'), href: '/cara-sewa' },
-    { label: t('nav.about'), href: '/buka-rental' },
+    { label: (isPerental || user?.rental === 'true') ? 'Buka Dashboard' : t('nav.about'), href: (isPerental || user?.rental === 'true') ? '/rental-dashboard' : '/buka-rental' },
   ]
 
   useEffect(() => {
@@ -230,6 +234,9 @@ export default function Navbar({ forceScrolled = false }) {
     if (names.length === 1) return names[0].charAt(0).toUpperCase()
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
   }
+
+  // Get profile photo URL
+  const getProfilePhotoUrl = () => getStorageUrl(user?.profile_photo)
 
   // Check if a nav link is active
   const isActiveLink = (href) => {
@@ -599,9 +606,13 @@ export default function Navbar({ forceScrolled = false }) {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2.5 bg-transparent border-none cursor-pointer transition-opacity duration-300 hover:opacity-80 p-0"
               >
-                <div className="w-8 h-8 bg-sp-primary rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0">
-                  {getUserInitials()}
-                </div>
+                {getProfilePhotoUrl() ? (
+                  <img src={getProfilePhotoUrl()} alt={user?.nama} className="w-8 h-8 rounded-full object-cover shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 bg-sp-primary rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {getUserInitials()}
+                  </div>
+                )}
                 <span className="text-sm font-medium text-white max-w-[120px] truncate">{user?.nama}</span>
                 <svg className={`w-3.5 h-3.5 text-white/60 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -731,9 +742,13 @@ export default function Navbar({ forceScrolled = false }) {
                     className="flex items-center gap-3 w-full mt-2 p-3 bg-white/10 rounded-lg no-underline transition-colors hover:bg-white/15"
                     onClick={() => setMobileOpen(false)}
                   >
-                    <div className="w-10 h-10 bg-sp-primary rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0">
-                      {getUserInitials()}
-                    </div>
+                    {getProfilePhotoUrl() ? (
+                      <img src={getProfilePhotoUrl()} alt={user?.nama} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 bg-sp-primary rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0">
+                        {getUserInitials()}
+                      </div>
+                    )}
                     <div className="flex flex-col min-w-0">
                       <span className="text-white text-sm font-semibold truncate">{user?.nama}</span>
                       <span className="text-gray-400 text-xs truncate">{user?.email}</span>

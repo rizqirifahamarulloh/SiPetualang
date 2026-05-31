@@ -34,7 +34,13 @@ class Transaksi extends Model
         'status_kembali',
         'metode_kembali',
         'no_resi_kembali',
-        'tanggal_kembali_real'
+        'tanggal_kembali_real',
+        'deposit_status',
+        'deposit_refund_amount',
+        'deposit_refund_method',
+        'deposit_refund_note',
+        'deposit_refund_proof',
+        'deposit_refunded_at',
     ];
 
     protected $casts = [

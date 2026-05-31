@@ -24,10 +24,10 @@ export default function Users() {
   const [userToDelete, setUserToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [stats, setStats] = useState({
-    total_users: 1240,
-    penyewa: 856,
-    pemilik: 384,
-    verifikasi_tertunda: 42
+    total_users: 0,
+    penyewa: 0,
+    pemilik: 0,
+    verifikasi_tertunda: 0
   });
 
   const getUsers = async () => {
@@ -143,10 +143,6 @@ export default function Users() {
             </div>
             <div className="flex items-end gap-2">
               <h2 className="text-3xl font-bold">{stats.verifikasi_tertunda}</h2>
-              <span className="text-sm text-red-500 mb-1 font-medium flex items-center">
-                <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                +12 hari ini
-              </span>
             </div>
           </CardContent>
         </Card>
@@ -210,7 +206,7 @@ export default function Users() {
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">{user.email}</TableCell>
                     <TableCell>
-                      <span className="text-sm">{user.peran_pengguna === 'customer' ? 'Penyewa' : 'Admin'}</span>
+                      <span className="text-sm">{user.peran_pengguna === 'admin' ? 'Admin' : user.peran_pengguna === 'perental' ? 'Perental' : 'Customer'}</span>
                     </TableCell>
                     <TableCell>
                       {user.is_verified ? (
@@ -224,7 +220,7 @@ export default function Users() {
                       )}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
-                      10 Okt 2023
+                      {user.created_at ? new Date(user.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                     </TableCell>
                     <TableCell className="text-center">
                       <DropdownMenu>

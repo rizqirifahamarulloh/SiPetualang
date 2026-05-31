@@ -52,6 +52,10 @@ export default function BarangShow() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingAction, setLoadingAction] = useState(false);
   const [error, setError] = useState(null);
+  const [recommendedBarang, setRecommendedBarang] = useState([]);
+  const [reviewFilter, setReviewFilter] = useState(0); // 0 = semua, 1-5 = filter bintang
+  const [ulasanList, setUlasanList] = useState([]);
+  const [ulasanStats, setUlasanStats] = useState({ total: 0, avg_rating: 0, star_counts: {} });
 
   const [selectedJumlah, setSelectedJumlah] = useState(1);
   const [tanggalMulai, setTanggalMulai] = useState(today);
@@ -59,7 +63,7 @@ export default function BarangShow() {
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
   const [deliveryAddress, setDeliveryAddress] = useState(user?.alamat || '');
   const [isKtpModalOpen, setIsKtpModalOpen] = useState(false);
-  
+
   // State untuk ongkir & jarak
   const [shippingCost, setShippingCost] = useState(0);
   const [distance, setDistance] = useState(0);
@@ -74,7 +78,7 @@ export default function BarangShow() {
     const minEnd = new Date(start);
     minEnd.setDate(minEnd.getDate() + (minDurasi - 1));
     const minEndStr = minEnd.toISOString().split('T')[0];
-    
+
     if (!tanggalSelesai || tanggalSelesai < minEndStr) {
       setTanggalSelesai(minEndStr);
     }
@@ -107,8 +111,8 @@ export default function BarangShow() {
     const latDiff = (lat2 - lat1) * Math.PI / 180;
     const lngDiff = (lng2 - lng1) * Math.PI / 180;
     const a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(lngDiff / 2) * Math.sin(lngDiff / 2);
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(lngDiff / 2) * Math.sin(lngDiff / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return earthRadius * c;
   };
@@ -122,13 +126,13 @@ export default function BarangShow() {
     }
 
     setIsCalculatingOngkir(true);
-    
+
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`
       );
       const data = await response.json();
-      
+
       if (data.length > 0) {
         const lat = parseFloat(data[0].lat);
         const lng = parseFloat(data[0].lon);
@@ -168,7 +172,7 @@ export default function BarangShow() {
         const distanceKm = calculateDistance(lat, lng, storeLoc.lat, storeLoc.lng);
         setDistance(distanceKm);
         setShippingCost(Math.round(distanceKm * 1000));
-        
+
         try {
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
@@ -184,7 +188,7 @@ export default function BarangShow() {
       },
       (error) => {
         let errorMsg = "";
-        switch(error.code) {
+        switch (error.code) {
           case error.PERMISSION_DENIED:
             errorMsg = "Izin lokasi ditolak. Beri izin akses lokasi.";
             break;
@@ -245,6 +249,38 @@ export default function BarangShow() {
     if (id) {
       fetchBarang();
     }
+  }, [id]);
+
+  // Fetch recommended products
+  useEffect(() => {
+    const fetchRecommended = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/rental/barang`);
+        if (response.data && Array.isArray(response.data)) {
+          const filtered = response.data.filter(b => b.id_barang !== parseInt(id));
+          setRecommendedBarang(filtered.slice(0, 4));
+        }
+      } catch (err) {
+        console.error('Gagal memuat rekomendasi:', err);
+      }
+    };
+    if (id) fetchRecommended();
+  }, [id]);
+
+  // Fetch ulasan from API
+  useEffect(() => {
+    const fetchUlasan = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/ulasan/barang/${id}`);
+        if (response.data) {
+          setUlasanList(response.data.ulasan || []);
+          setUlasanStats(response.data.stats || { total: 0, avg_rating: 0, star_counts: {} });
+        }
+      } catch (err) {
+        console.error('Gagal memuat ulasan:', err);
+      }
+    };
+    if (id) fetchUlasan();
   }, [id]);
 
   const addToCart = async () => {
@@ -386,14 +422,14 @@ export default function BarangShow() {
 
   const getImageUrl = useCallback(() => {
     if (!barang) return PLACEHOLDER_IMAGE;
-    
+
     if (barang.foto_barang) {
       if (barang.foto_barang.startsWith('http')) {
         return barang.foto_barang;
       }
       return `${BASE_URL}/storage/${barang.foto_barang}`;
     }
-    
+
     return PLACEHOLDER_IMAGE;
   }, [barang]);
 
@@ -500,6 +536,138 @@ export default function BarangShow() {
                 </button>
               </div>
             </div>
+
+            {/* Ulasan Section */}
+            {(() => {
+              const filteredReviews = reviewFilter === 0
+                ? ulasanList
+                : ulasanList.filter(r => r.rating === reviewFilter);
+
+              const starCounts = [5, 4, 3, 2, 1].map(s => ({
+                star: s,
+                count: ulasanStats.star_counts?.[s] || 0,
+              }));
+
+              const formatTime = (dateStr) => {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                if (diffDays === 0) return 'Hari ini';
+                if (diffDays === 1) return 'Kemarin';
+                if (diffDays < 7) return `${diffDays} hari lalu`;
+                if (diffDays < 30) return `${Math.floor(diffDays / 7)} minggu lalu`;
+                if (diffDays < 365) return `${Math.floor(diffDays / 30)} bulan lalu`;
+                return `${Math.floor(diffDays / 365)} tahun lalu`;
+              };
+
+              return (
+                <div className="bg-white mt-4 rounded-3xl p-6 border shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="bg-[#00A779] text-[10px] font-semibold text-white px-3 py-1 rounded-full">
+                      Ulasan
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {ulasanStats.total} ulasan
+                    </span>
+                  </div>
+
+                  {/* Filter Buttons */}
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    <button
+                      onClick={() => setReviewFilter(0)}
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
+                        reviewFilter === 0
+                          ? 'bg-[#00A779] text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Semua ({ulasanStats.total})
+                    </button>
+                    {starCounts.map(({ star, count }) => (
+                      <button
+                        key={star}
+                        onClick={() => setReviewFilter(star)}
+                        className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all flex items-center gap-1 ${
+                          reviewFilter === star
+                            ? 'bg-[#00A779] text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        <Star className="w-3 h-3" fill={reviewFilter === star ? '#fff' : '#fbbf24'} strokeWidth={0} />
+                        {star} ({count})
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Reviews List */}
+                  <div className="flex flex-col gap-5">
+                    {filteredReviews.length === 0 ? (
+                      <p className="text-xs text-gray-400 text-center py-6">Belum ada ulasan{reviewFilter > 0 ? ` untuk rating ${reviewFilter} bintang` : ''}.</p>
+                    ) : (
+                      filteredReviews.map((review, idx) => (
+                        <div key={review.id_ulasan || idx} className={`${idx > 0 ? 'border-t pt-5' : ''}`}>
+                          <div className="flex items-start gap-3">
+                            {review.pengguna?.profile_photo ? (
+                              <img
+                                src={`${BASE_URL}/storage/${review.pengguna.profile_photo}`}
+                                alt={review.pengguna.nama}
+                                className="w-10 h-10 rounded-full object-cover shrink-0"
+                                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                              />
+                            ) : null}
+                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 items-center justify-center text-white text-xs font-bold shrink-0 ${review.pengguna?.profile_photo ? 'hidden' : 'flex'}`}>
+                              {(review.pengguna?.nama || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <h4 className="text-sm font-bold text-gray-900">{review.pengguna?.nama || 'Pengguna'}</h4>
+                                <span className="text-[10px] text-gray-400 shrink-0">{formatTime(review.created_at)}</span>
+                              </div>
+                              <div className="flex items-center gap-0.5 mt-1">
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                  <Star
+                                    key={s}
+                                    className="w-3.5 h-3.5"
+                                    fill={s <= review.rating ? '#fbbf24' : '#e5e7eb'}
+                                    strokeWidth={0}
+                                  />
+                                ))}
+                              </div>
+                              {review.komentar && (
+                                <p className="text-xs text-gray-600 leading-relaxed mt-2">{review.komentar}</p>
+                              )}
+                              {review.foto_ulasan && (() => {
+                                const photos = Array.isArray(review.foto_ulasan)
+                                  ? review.foto_ulasan
+                                  : (typeof review.foto_ulasan === 'string' && review.foto_ulasan.startsWith('['))
+                                    ? JSON.parse(review.foto_ulasan)
+                                    : review.foto_ulasan ? [review.foto_ulasan] : [];
+                                return photos.length > 0 ? (
+                                  <div className="mt-3 flex gap-2 flex-wrap">
+                                    {photos.map((foto, fIdx) => (
+                                      <div key={fIdx} className="w-16 h-16 rounded-xl bg-[#E8ECF1] overflow-hidden">
+                                        <img
+                                          src={`${BASE_URL}/storage/${foto}`}
+                                          alt={`Foto ulasan ${fIdx + 1}`}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => { e.target.src = PLACEHOLDER_IMAGE; }}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : null;
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Kolom Kanan */}
@@ -513,10 +681,11 @@ export default function BarangShow() {
 
               <h1 className="text-3xl font-black text-gray-900">{barang.nama_barang}</h1>
 
-              {/* Star Rating */}
+              {/* Star Rating - Dynamic from API */}
               {(() => {
-                const rating = ((barang.id_barang * 7 + 13) % 15 + 36) / 10;
-                const reviewCount = (barang.id_barang * 17 + 5) % 80 + 12;
+                // Prioritaskan data dari ulasan API agar konsisten dengan section ulasan
+                const rating = ulasanStats.total > 0 ? ulasanStats.avg_rating : (barang.avg_rating || 0);
+                const reviewCount = ulasanStats.total > 0 ? ulasanStats.total : (barang.total_ulasan || 0);
                 return (
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex items-center gap-0.5">
@@ -532,7 +701,7 @@ export default function BarangShow() {
                         );
                       })}
                     </div>
-                    <span className="text-sm font-bold text-gray-800">{rating.toFixed(1)}</span>
+                    <span className="text-sm font-bold text-gray-800">{rating > 0 ? rating.toFixed ? rating.toFixed(1) : rating : '0.0'}</span>
                     <span className="text-xs text-gray-400">({reviewCount} ulasan)</span>
                   </div>
                 );
@@ -635,22 +804,20 @@ export default function BarangShow() {
                       setShippingCost(0);
                       setDistance(0);
                     }}
-                    className={`py-3 rounded-xl border flex items-center justify-center gap-2 transition ${
-                      deliveryMethod === 'pickup' 
-                        ? 'bg-[#00A779] text-white' 
+                    className={`py-3 rounded-xl border flex items-center justify-center gap-2 transition ${deliveryMethod === 'pickup'
+                        ? 'bg-[#00A779] text-white'
                         : 'bg-white'
-                    }`}
+                      }`}
                   >
                     <Store className="w-4 h-4" />
                     Pickup
                   </button>
                   <button
                     onClick={() => setDeliveryMethod('delivery')}
-                    className={`py-3 rounded-xl border flex items-center justify-center gap-2 transition ${
-                      deliveryMethod === 'delivery' 
-                        ? 'bg-[#00A779] text-white' 
+                    className={`py-3 rounded-xl border flex items-center justify-center gap-2 transition ${deliveryMethod === 'delivery'
+                        ? 'bg-[#00A779] text-white'
                         : 'bg-white'
-                    }`}
+                      }`}
                   >
                     <Truck className="w-4 h-4" />
                     Delivery
@@ -665,7 +832,7 @@ export default function BarangShow() {
                     <MapPin className="w-4 h-4" />
                     Alamat Pengiriman
                   </label>
-                  
+
                   <textarea
                     rows={3}
                     value={deliveryAddress}
@@ -673,19 +840,19 @@ export default function BarangShow() {
                     placeholder="Contoh: Jl. Sudirman No. 123, Jakarta Pusat"
                     className="w-full border rounded-2xl p-4 mt-2 focus:outline-none focus:border-[#00A779]"
                   />
-                  
+
                   {/* DUA TOMBOL */}
                   <div className="flex gap-2 mt-2">
-                    <button 
-                      onClick={() => calculateOngkir(deliveryAddress)} 
+                    <button
+                      onClick={() => calculateOngkir(deliveryAddress)}
                       disabled={isCalculatingOngkir || !deliveryAddress}
                       className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition"
                     >
-                      <MapPin className="w-4 h-4" /> 
+                      <MapPin className="w-4 h-4" />
                       {isCalculatingOngkir ? "Memuat..." : "Cek Ongkir"}
                     </button>
-                    <button 
-                      onClick={getCurrentLocation} 
+                    <button
+                      onClick={getCurrentLocation}
                       disabled={isCalculatingOngkir}
                       className="flex-1 bg-[#00A779] text-white py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#008f68] transition"
                     >
@@ -799,9 +966,50 @@ export default function BarangShow() {
         </div>
       </main>
 
+      {/* REKOMENDASI ALAT */}
+      {recommendedBarang.length > 0 && (
+        <section className="container mx-auto px-4 max-w-7xl pb-20">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-8">Rekomendasi Alat</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {recommendedBarang.map((item, idx) => {
+              const imgUrl = item.foto_barang
+                ? (item.foto_barang.startsWith('http') ? item.foto_barang : `${BASE_URL}/storage/${item.foto_barang}`)
+                : PLACEHOLDER_IMAGE;
+              return (
+                <Link
+                  key={item.id_barang}
+                  to={`/barang/${item.id_barang}`}
+                  className="group no-underline"
+                >
+                  <div className="relative aspect-square w-full rounded-[20px] bg-[#E8ECF1] overflow-hidden">
+                    {idx === 0 && (
+                      <span className="absolute top-3 left-3 bg-[#00A779] text-[9px] font-semibold text-white px-3 py-1 rounded-full tracking-wide z-[2]">
+                        Rekomendasi
+                      </span>
+                    )}
+                    <img
+                      src={imgUrl}
+                      alt={item.nama_barang}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => { e.target.src = PLACEHOLDER_IMAGE; }}
+                    />
+                  </div>
+                  <div className="mt-3 text-center">
+                    <h3 className="text-sm font-bold text-gray-900">{item.nama_barang}</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Rp {Number(item.harga_sewa).toLocaleString('id-ID')} /Hari
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <Footer />
 
-      <KtpVerificationModal 
+      <KtpVerificationModal
         isOpen={isKtpModalOpen}
         onClose={() => setIsKtpModalOpen(false)}
         status={user?.verification_status}

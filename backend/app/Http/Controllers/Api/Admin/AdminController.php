@@ -6,11 +6,89 @@ use App\Http\Controllers\Controller;
 use App\Models\Pengguna;
 use App\Models\Transaksi;
 use App\Models\Barang;
+use App\Models\Pengiriman;
 use App\Models\PengajuanPengembalian;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    /**
+     * Sidebar Badge Counts — single lightweight endpoint
+     */
+    public function sidebarBadges()
+    {
+        try {
+            // 1. Pengguna — total user non-admin
+            $totalUsers = Pengguna::where('peran_pengguna', '!=', 'admin')->count();
+
+            // 2. Gears — barang baru dari perental yang belum disetujui (pending)
+            $pendingGears = Barang::where('status_approval', 'pending')->count();
+
+            // 3. Transaksi — transaksi aktif (belum selesai/dibatalkan)
+            $activeTransactions = Transaksi::whereNotIn('status_sewa', ['selesai', 'dibatalkan'])
+                ->where('status_pembayaran', 'sukses')
+                ->count();
+
+            // 4. Pengiriman — pengiriman aktif (belum diterima)
+            $activePengiriman = Pengiriman::whereNotIn('status_pengiriman', ['diterima'])->count();
+
+            // Tambah: delivery yang belum ada record pengiriman sama sekali
+            $deliveryBelumKirim = Transaksi::where('metode_pengiriman', 'delivery')
+                ->where('status_pembayaran', 'sukses')
+                ->whereNotExists(function ($query) {
+                    $query->select(\DB::raw(1))
+                          ->from('pengiriman')
+                          ->whereColumn('pengiriman.id_transaksi', 'transaksi.id_transaksi');
+                })
+                ->count();
+
+            // Tambah pickup yang menunggu diambil
+            $pickupMenunggu = Transaksi::where('metode_pengiriman', 'pickup')
+                ->where('status_sewa', 'dibayar')
+                ->where('status_pembayaran', 'sukses')
+                ->count();
+
+            // 5. Barang Disewakan — yang sedang aktif disewa
+            $activeRentals = Transaksi::where('status_sewa', 'sedang_disewa')
+                ->where('status_pembayaran', 'sukses')
+                ->count();
+
+            // 6. Pembayaran — transaksi yang pembayarannya masih pending
+            $pendingPayments = Transaksi::where('status_pembayaran', 'pending')->count();
+
+            // 7. Pengembalian Barang — pengajuan pengembalian pending
+            $pendingReturns = PengajuanPengembalian::where('status', 'pending')->count();
+
+            // 8. Refund Deposit — deposit yang menunggu refund
+            $pendingDeposit = Transaksi::where('deposit_status', 'pending')
+                ->where('status_sewa', 'selesai')
+                ->count();
+
+            // 9. Verifikasi KTP — KTP yang menunggu verifikasi
+            $pendingKtp = \App\Models\Verifikasi::where('status_verifikasi', 'pending')->count();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'users' => $totalUsers,
+                    'gears' => $pendingGears,
+                    'transactions' => $activeTransactions,
+                    'pengiriman' => $activePengiriman + $deliveryBelumKirim + $pickupMenunggu,
+                    'disewa' => $activeRentals,
+                    'payments' => $pendingPayments,
+                    'pengembalian' => $pendingReturns,
+                    'deposit' => $pendingDeposit,
+                    'verifikasi' => $pendingKtp,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Admin Dashboard
      */

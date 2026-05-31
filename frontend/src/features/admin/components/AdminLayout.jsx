@@ -1,11 +1,12 @@
+import { useState, useEffect, useCallback } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { BASE_URL } from '@/services/api'
 import { getStorageUrl } from '@/utils/storageUrl'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ThemeToggle from '@/components/ThemeToggle'
 import LanguageToggle from '@/components/LanguageToggle'
 import adminLogo from '@/assets/beranda/Property-1-LogoMark.png'
+import { adminService } from '../services/adminService'
 import {
   Sidebar,
   SidebarContent,
@@ -45,6 +46,7 @@ import {
   Truck,
   Layers,
   RotateCcw,
+  Wallet,
 } from 'lucide-react'
 
 function useMenuGroups() {
@@ -60,8 +62,8 @@ function useMenuGroups() {
     {
       label: 'Manajemen',
       items: [
-        { label: t('admin.users'), icon: Users, href: '/admin/users' },
-        { label: t('admin.gears'), icon: Package, href: '/admin/gears' },
+        { label: t('admin.users'), icon: Users, href: '/admin/users', badgeKey: 'users', badgeColor: 'emerald' },
+        { label: t('admin.gears'), icon: Package, href: '/admin/gears', badgeKey: 'gears', badgeColor: 'orange' },
         { label: t('admin.categories'), icon: FolderOpen, href: '/admin/categories' },
         { label: t('admin.destinations'), icon: MapPin, href: '/admin/destinations' },
       ],
@@ -69,20 +71,44 @@ function useMenuGroups() {
     {
       label: 'Transaksi',
       items: [
-        { label: t('admin.transactions'), icon: ShoppingCart, href: '/admin/revenue' },
-        { label: 'Status Pengiriman', icon: Truck, href: '/admin/pengiriman' },
-        { label: 'Barang Disewakan', icon: Layers, href: '/admin/disewa' },
-        { label: t('admin.payments'), icon: CreditCard, href: '/admin/payments' },
-        { label: 'Pengembalian Barang', icon: RotateCcw, href: '/admin/pengembalian' },
+        { label: t('admin.transactions'), icon: ShoppingCart, href: '/admin/revenue', badgeKey: 'transactions', badgeColor: 'blue' },
+        { label: 'Status Pengiriman', icon: Truck, href: '/admin/pengiriman', badgeKey: 'pengiriman', badgeColor: 'blue' },
+        { label: 'Barang Disewakan', icon: Layers, href: '/admin/disewa', badgeKey: 'disewa', badgeColor: 'blue' },
+        { label: t('admin.payments'), icon: CreditCard, href: '/admin/payments', badgeKey: 'payments', badgeColor: 'red' },
+        { label: 'Pengembalian Barang', icon: RotateCcw, href: '/admin/pengembalian', badgeKey: 'pengembalian', badgeColor: 'orange' },
+        { label: 'Refund Deposit', icon: Wallet, href: '/admin/deposit-refund', badgeKey: 'deposit', badgeColor: 'orange' },
       ],
     },
     {
       label: 'Verifikasi',
       items: [
-        { label: t('admin.ktpVerification'), icon: Shield, href: '/admin/ktp-verifikasi' },
+        { label: t('admin.ktpVerification'), icon: Shield, href: '/admin/ktp-verifikasi', badgeKey: 'verifikasi', badgeColor: 'red' },
       ],
     },
   ]
+}
+
+/*
+ * 🔴 Red    = Butuh Tindakan Segera (pembayaran pending, verifikasi KTP menunggu)
+ * 🟠 Orange = Perlu Perhatian (barang pending approval, pengembalian, refund deposit)
+ * 🔵 Blue   = Sedang Aktif / Proses Berjalan (transaksi aktif, pengiriman, barang disewa)
+ * 🟢 Emerald = Informasi Data (jumlah user terdaftar)
+ */
+const BADGE_STYLES = {
+  red:     'bg-red-500 text-white shadow-red-500/30',
+  orange:  'bg-amber-500 text-white shadow-amber-500/30',
+  blue:    'bg-blue-500 text-white shadow-blue-500/30',
+  emerald: 'bg-emerald-500 text-white shadow-emerald-500/30',
+}
+
+function NotifBadge({ count, color = 'red' }) {
+  if (!count || count <= 0) return null
+  const style = BADGE_STYLES[color] || BADGE_STYLES.red
+  return (
+    <span className={`ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold rounded-full shadow-sm ${style}`}>
+      {count > 99 ? '99+' : count}
+    </span>
+  )
 }
 
 function AdminSidebar() {
@@ -90,6 +116,30 @@ function AdminSidebar() {
   const { t } = useLanguage()
   const location = useLocation()
   const menuGroups = useMenuGroups()
+  const [badges, setBadges] = useState({})
+
+  const fetchBadges = useCallback(async () => {
+    try {
+      const response = await adminService.getSidebarBadges()
+      const data = response.data?.data || response.data || {}
+      setBadges(data)
+    } catch (err) {
+      console.error('Failed to fetch sidebar badges:', err)
+    }
+  }, [])
+
+  // Fetch on mount + auto-refresh every 15 seconds
+  useEffect(() => {
+    fetchBadges()
+    const interval = setInterval(fetchBadges, 15000)
+    return () => clearInterval(interval)
+  }, [fetchBadges])
+
+  // Debounced refresh on navigation (500ms delay to avoid spam)
+  useEffect(() => {
+    const timer = setTimeout(fetchBadges, 500)
+    return () => clearTimeout(timer)
+  }, [location.pathname])
 
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -124,9 +174,10 @@ function AdminSidebar() {
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={location.pathname === item.href}>
-                      <Link to={item.href}>
+                      <Link to={item.href} className="flex items-center w-full">
                         <item.icon className="size-4" />
-                        <span>{item.label}</span>
+                        <span className="flex-1">{item.label}</span>
+                        {item.badgeKey && <NotifBadge count={badges[item.badgeKey]} color={item.badgeColor} />}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -174,12 +225,10 @@ function AdminSidebar() {
 
 export default function AdminLayout() {
   const { t } = useLanguage()
-  const { user } = useAuth() // Hanya ambil user
+  const { user } = useAuth()
 
-  // Logika Foto Profil
   const photoUrl = getStorageUrl(user?.profile_photo)
 
-  // Logika Inisial
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U'
@@ -217,7 +266,6 @@ export default function AdminLayout() {
               </DropdownMenuTrigger>
               
               <DropdownMenuContent align="end" className="w-56">
-                {/* Info User */}
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
                     <p className="font-medium text-sm">{user?.name}</p>
@@ -229,7 +277,6 @@ export default function AdminLayout() {
                 
                 <DropdownMenuSeparator />
                 
-                {/* Menu Edit Profile saja */}
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="cursor-pointer w-full flex items-center">
                     <Users className="mr-2 size-4" />
@@ -238,8 +285,6 @@ export default function AdminLayout() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            {/* --- AKHIR DROPDOWN --- */}
-            
           </div>
         </header>
 
